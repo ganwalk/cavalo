@@ -586,6 +586,7 @@
 
             .logo {
                 font-size: 24px;
+                margin-bottom: 10px;
             }
 
             /* Botão de abrir menu (visível apenas no mobile fechado) */
@@ -1191,7 +1192,7 @@
         }
 
         // --- Ambiente Chão/Pedras Variadas ---
-        const planeGeo = new THREE.PlaneGeometry(800, 800);
+        const planeGeo = new THREE.PlaneGeometry(2000, 2000); // Aumentei para garantir cobertura
         const planeMat = new THREE.MeshStandardMaterial({ 
             color: 0x5c3a21, 
             roughness: 0.9 
@@ -1201,6 +1202,13 @@
         ground.position.y = 0;
         ground.receiveShadow = true;
         scene.add(ground);
+
+        // Chão Wireframe (Estrutura de Dados)
+        const gridGeo = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+        const groundWire = new THREE.Mesh(gridGeo, wireMaterial);
+        groundWire.rotation.x = -Math.PI / 2;
+        groundWire.position.y = 0.1; // Levemente acima para não z-fight
+        scene.add(groundWire);
 
         const desertGroup = new THREE.Group();
         scene.add(desertGroup);
@@ -1486,6 +1494,11 @@
             // Mover Pedras (Ajuste para sincronia com animação)
             desertGroup.position.x -= (state.speed / 80); 
             if (desertGroup.position.x < -600) desertGroup.position.x = 0; // Loop mais longo
+
+            // Mover Grid do Chão (Infinito)
+            // Tamanho da célula = 2000 / 100 = 20
+            const cellSize = 20;
+            groundWire.position.x = (desertGroup.position.x % cellSize);
 
             controls.update();
             renderer.render(scene, camera);
