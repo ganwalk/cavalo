@@ -104,6 +104,38 @@
             color: #8c6e50;
         }
 
+        /* Elementos Mobile (Ocultos por padrão no Desktop) */
+        .mobile-menu-msg {
+            display: none;
+            width: 100%;
+            text-align: center;
+            color: #ffaa88;
+            border-bottom: 1px dashed #ffaa88;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-size: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .mobile-menu-msg:hover {
+            color: #ff4400;
+            text-shadow: 0 0 10px #ff4400;
+        }
+
+        .mobile-open-btn {
+            display: none;
+            background: none;
+            border: 1px solid #dcb386;
+            color: #dcb386;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            padding: 5px 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
         /* --- SECÇÕES DE CONTEÚDO --- */
         .page-section {
             position: absolute;
@@ -236,7 +268,7 @@
             font-family: 'VT323', monospace;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 1s, transform 1s;
+            transition: opacity 0.5s, transform 0.5s;
             pointer-events: none;
         }
 
@@ -544,28 +576,69 @@
         /* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
         @media (max-width: 768px) {
             nav {
-                flex-direction: column;
-                height: auto;
-                padding: 10px 20px;
+                flex-direction: row; /* Começa como linha no mobile (Logo - Botão) */
+                height: 80px; /* Altura padrão fechada */
+                padding: 0 20px;
                 background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+                align-items: center;
+                overflow: hidden; /* Esconde links quando fechado */
             }
+
             .logo {
                 font-size: 24px;
-                margin-bottom: 10px;
             }
+
+            /* Botão de abrir menu (visível apenas no mobile fechado) */
+            .mobile-open-btn {
+                display: block;
+            }
+
             .nav-links {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
+                display: none; /* Links escondidos por padrão no mobile */
                 width: 100%;
+                flex-direction: column;
+                margin-top: 20px;
+                gap: 20px;
             }
+
             .nav-item {
-                font-size: 18px;
+                font-size: 24px;
+                width: 100%;
+                text-align: center;
+                padding: 10px 0;
+            }
+
+            /* ESTADO ABERTO DO MENU MOBILE */
+            nav.mobile-open {
+                height: 100vh; /* Ocupa tela toda */
+                flex-direction: column; /* Pilha vertical */
+                justify-content: flex-start;
+                background: rgba(21, 13, 5, 0.98); /* Fundo sólido */
+                padding-top: 40px;
+            }
+
+            nav.mobile-open .logo {
+                margin-bottom: 20px;
+                order: 2; /* Logo abaixo da mensagem */
+            }
+
+            nav.mobile-open .mobile-open-btn {
+                display: none; /* Esconde botão de abrir */
+            }
+
+            nav.mobile-open .mobile-menu-msg {
+                display: block; /* Mostra botão de fechar */
+                order: 1; /* Mensagem no topo */
+            }
+
+            nav.mobile-open .nav-links {
+                display: flex; /* Mostra links */
+                order: 3;
             }
             
             .page-section {
-                top: 130px; /* Ajuste para o menu maior no topo */
-                height: calc(100vh - 130px);
+                top: 80px; 
+                height: calc(100vh - 80px);
                 padding: 20px;
             }
             
@@ -579,9 +652,9 @@
                 width: 90%;
                 left: 50%;
                 right: auto;
-                top: 150px;
+                top: 100px;
                 transition: transform 0.4s ease, opacity 0.4s;
-                transform: translateX(-50%); /* Centraliza */
+                transform: translateX(-50%); 
             }
             
             #hud.collapsed {
@@ -591,7 +664,7 @@
             }
 
             #hud-toggle-btn {
-                top: 120px;
+                top: 90px;
                 right: 10px;
                 font-size: 14px;
                 padding: 5px 10px;
@@ -604,10 +677,18 @@
                 width: 85%;
                 margin: 0;
                 transform: translateX(-50%); 
+                transition: opacity 0.3s, transform 0.3s;
             }
             #presave-popup.visible {
                 transform: translateX(-50%) translateY(0);
                 opacity: 1;
+            }
+
+            /* REGRA CRUCIAL: Esconder Pre-save se menu mobile estiver aberto */
+            nav.mobile-open ~ #presave-popup {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transform: translateX(-50%) translateY(20px) !important;
             }
         }
 
@@ -624,8 +705,15 @@
 <body>
 
     <!-- Navegação -->
-    <nav>
+    <nav id="main-nav">
+        <!-- Controle Mobile: Mensagem de Fechar (Visível só quando aberto) -->
+        <div class="mobile-menu-msg" id="mobile-close-btn">FECHAR MENU [ × ]</div>
+
         <div class="logo">DEZERT HORSE</div>
+        
+        <!-- Controle Mobile: Botão Menu (Visível só quando fechado no mobile) -->
+        <button class="mobile-open-btn" id="mobile-open-btn">MENU</button>
+
         <div class="nav-links">
             <a class="nav-item active" data-target="home">HOME</a>
             <a class="nav-item" data-target="fotos">FOTOS</a>
@@ -760,8 +848,11 @@
         const presavePopup = document.getElementById('presave-popup');
 
         // Navigation Elements
+        const nav = document.getElementById('main-nav');
         const navLinks = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('.page-section');
+        const mobileOpenBtn = document.getElementById('mobile-open-btn');
+        const mobileCloseBtn = document.getElementById('mobile-close-btn');
 
         // --- NAVEGAÇÃO SPA & FILTRO DE AUDIO ---
         // Audio Filter State
@@ -815,16 +906,32 @@
             }
         }
 
+        // Mobile Menu Logic
+        function toggleMobileMenu(forceClose = false) {
+            if (forceClose) {
+                nav.classList.remove('mobile-open');
+            } else {
+                nav.classList.toggle('mobile-open');
+            }
+        }
+
+        mobileOpenBtn.addEventListener('click', () => toggleMobileMenu());
+        mobileCloseBtn.addEventListener('click', () => toggleMobileMenu());
+
         navLinks.forEach(link => {
             if (link.classList.contains('disabled')) return;
-            // Ignora links externos na lógica de SPA
-            if (link.tagName === 'A' && link.getAttribute('href')) return;
+            // Ignora links externos na lógica de SPA, mas fecha o menu se estiver aberto
+            if (link.tagName === 'A' && link.getAttribute('href')) {
+                link.addEventListener('click', () => toggleMobileMenu(true));
+                return;
+            }
 
             link.addEventListener('click', () => {
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
                 const target = link.getAttribute('data-target');
                 switchPage(target);
+                toggleMobileMenu(true); // Close menu on click
             });
         });
 
