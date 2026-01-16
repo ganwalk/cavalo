@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEZERT HORSE | OFFICIAL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #150d05;
+            font-family: 'VT323', monospace;
+            user-select: none;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            transition: filter 0.5s ease;
+        }
+
+        /* --- MENU DE NAVEGAÇÃO FLUTUANTE --- */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent; 
+            border-bottom: none;      
+            z-index: 300;
+            padding: 0 40px;
+            box-sizing: border-box;
+            box-shadow: none;        
+            transition: all 0.3s;
+        }
+
+        .logo {
+            font-size: 32px;
+            color: #dcb386;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(220, 179, 134, 0.8); 
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px; 
+            align-items: center;
+        }
+
+        .nav-item {
+            color: #dcb386;
+            text-decoration: none;
+            font-size: 22px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            padding: 5px 0; 
+            transition: all 0.3s;
+            opacity: 0.7;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8); 
+        }
+
+        .nav-item:hover, .nav-item.active {
+            opacity: 1;
+            text-shadow: 0 0 15px #dcb386;
+            background: transparent; 
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #dcb386;
+            box-shadow: 0 0 10px #dcb386;
+        }
+
+        .nav-item.disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .nav-item.disabled:hover {
+            opacity: 1;
+            text-shadow: 0 0 5px #dcb386;
+        }
+
+        .nav-item.disabled:hover span {
+            display: none;
+        }
+        .nav-item.disabled:hover::before {
+            content: 'EM BREVE';
+            color: #8c6e50;
+        }
+
+        /* --- SECÇÕES DE CONTEÚDO --- */
+        .page-section {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            z-index: 250;
+            display: none;
+            overflow-y: auto;
+            background: rgba(21, 13, 5, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 40px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .page-section.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        h1.section-title {
+            color: #dcb386;
+            font-size: 48px;
+            border-bottom: 2px dashed #dcb386;
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+
+        /* Fotos */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .photo-card {
+            background: #000;
+            border: 1px solid #dcb386;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #553311;
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px #dcb386;
+            color: #dcb386;
+        }
+
+        /* Links */
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .link-item {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #dcb386;
+            color: #dcb386;
+            text-decoration: none;
+            font-size: 24px;
+            text-align: center;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .link-item:hover {
+            background: #dcb386;
+            color: #150d05;
+            box-shadow: 0 0 20px #dcb386;
+            letter-spacing: 2px;
+        }
+
+        /* --- EFEITOS DE ECRÃ --- */
+        .dither-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.15"/></svg>');
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 6;
+            background: radial-gradient(circle, transparent 40%, rgba(10, 5, 0, 0.95) 100%);
+        }
+
+        /* --- POPUP PRE-SAVE --- */
+        #presave-popup {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 220px;
+            background: rgba(20, 10, 5, 0.9);
+            border: 1px solid #dcb386;
+            padding: 20px;
+            z-index: 150;
+            box-shadow: 0 0 20px rgba(220, 179, 134, 0.15);
+            color: #dcb386;
+            font-family: 'VT323', monospace;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s, transform 1s;
+            pointer-events: none;
+        }
+
+        #presave-popup.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Letreiro PRE-SAVE */
+        .presave-sign-badge {
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            background: #dcb386;
+            color: #150d05;
+            padding: 4px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            transform: rotate(5deg);
+            box-shadow: 0 0 15px #dcb386;
+            border: 1px solid #150d05;
+            z-index: 10;
+            animation: flicker-sign 2s infinite alternate;
+        }
+
+        @keyframes flicker-sign {
+            0% { opacity: 1; text-shadow: 0 0 0 transparent; }
+            90% { opacity: 1; text-shadow: 0 0 0 transparent; }
+            92% { opacity: 0.5; text-shadow: 0 0 10px #fff; }
+            94% { opacity: 1; text-shadow: 0 0 0 transparent; }
+            96% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .presave-title {
+            font-size: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px dashed #dcb386;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            animation: blink-text 2s infinite;
+        }
+
+        .presave-desc {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            opacity: 0.8;
+        }
+
+        .presave-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #dcb386;
+            color: #150d05;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 18px;
+            border: 1px solid #dcb386;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .presave-btn:hover {
+            background: #150d05;
+            color: #dcb386;
+            box-shadow: 0 0 10px #dcb386;
+        }
+
+        @keyframes blink-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* --- HUD --- */
+        #hud {
+            position: absolute;
+            top: 80px; 
+            right: 20px;
+            width: 260px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: rgba(20, 10, 5, 0.9);
+            border: 1px solid #dcb386;
+            padding: 15px;
+            color: #dcb386;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(220, 179, 134, 0.1);
+            backdrop-filter: blur(4px);
+            scrollbar-width: thin;
+            scrollbar-color: #dcb386 #150d05;
+            
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #hud.collapsed {
+            transform: translateX(300px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #hud-toggle-btn {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(20, 10, 5, 0.8);
+            border: 1px solid #dcb386;
+            color: #dcb386;
+            padding: 10px 15px;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 99;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(220, 179, 134, 0.2);
+            transition: opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #hud.collapsed ~ #hud-toggle-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #dcb386;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #dcb386;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        .close-btn:hover { color: #ff4400; }
+
+        .control-group {
+            margin-bottom: 18px;
+            border-bottom: 1px dotted rgba(220, 179, 134, 0.3);
+            padding-bottom: 10px;
+        }
+        .control-group:last-child { border-bottom: none; }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #dcb386;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            height: 4px;
+            border-radius: 2px;
+            appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #dcb386;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        button.control-btn {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #dcb386;
+            color: #dcb386;
+            padding: 8px;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.control-btn:hover {
+            background: #dcb386;
+            color: #150d05;
+            box-shadow: 0 0 10px #dcb386;
+        }
+
+        button.control-btn.active {
+            background: #dcb386;
+            color: #150d05;
+            box-shadow: 0 0 5px #dcb386 inset;
+        }
+
+        .data-stream {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 10px;
+            height: 60px;
+            overflow: hidden;
+            border: 1px solid #dcb386;
+            padding: 5px;
+            background: rgba(0,0,0,0.5);
+            font-family: monospace;
+            line-height: 1.2;
+        }
+
+        /* --- TELA DE CARREGAMENTO FAKE --- */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #150d05;
+            color: #dcb386;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: opacity 1s ease-out;
+        }
+        
+        #loading-text {
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            animation: blink 0.5s infinite alternate;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            border: 1px solid #dcb386;
+            padding: 2px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #dcb386;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        #start-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 2px solid #dcb386;
+            color: #dcb386;
+            padding: 15px 30px;
+            font-family: 'VT323', monospace;
+            font-size: 24px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            animation: pulse-btn-border 2s infinite;
+            display: none;
+        }
+
+        #start-btn:hover {
+            background: #dcb386;
+            color: #150d05;
+            box-shadow: 0 0 20px #dcb386;
+        }
+
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+
+        @keyframes pulse-btn-border {
+            0% { box-shadow: 0 0 0 rgba(220, 179, 134, 0); }
+            50% { box-shadow: 0 0 15px rgba(220, 179, 134, 0.5); }
+            100% { box-shadow: 0 0 0 rgba(220, 179, 134, 0); }
+        }
+
+        .hidden { opacity: 0 !important; pointer-events: none; }
+
+        /* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 20px;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            }
+            .logo {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            .nav-item {
+                font-size: 18px;
+            }
+            
+            .page-section {
+                top: 130px; /* Ajuste para o menu maior no topo */
+                height: calc(100vh - 130px);
+                padding: 20px;
+            }
+            
+            h1.section-title {
+                font-size: 32px;
+                margin-bottom: 20px;
+            }
+
+            /* HUD centralizado e menor no mobile */
+            #hud {
+                width: 90%;
+                left: 50%;
+                right: auto;
+                top: 150px;
+                transition: transform 0.4s ease, opacity 0.4s;
+                transform: translateX(-50%); /* Centraliza */
+            }
+            
+            #hud.collapsed {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            #hud-toggle-btn {
+                top: 120px;
+                right: 10px;
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+
+            /* Centralizar Popup de Pre-save no mobile */
+            #presave-popup {
+                left: 50%;
+                bottom: 20px;
+                width: 85%;
+                margin: 0;
+                transform: translateX(-50%); 
+            }
+            #presave-popup.visible {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Navegação -->
+    <nav>
+        <div class="logo">DEZERT HORSE</div>
+        <div class="nav-links">
+            <a class="nav-item active" data-target="home">HOME</a>
+            <a class="nav-item" data-target="fotos">FOTOS</a>
+            <a class="nav-item" data-target="links">LINKS</a>
+            <a class="nav-item disabled" data-target="letras"><span>LETRAS</span></a>
+            <a class="nav-item" href="https://tratore.ffm.to/dzrthrs3s1" target="_blank">PRE-SAVE</a>
+        </div>
+    </nav>
+
+    <!-- Tela de Carregamento -->
+    <div id="loading-screen">
+        <div id="loading-text">INICIALIZANDO SISTEMA...</div>
+        <div class="progress-bar" id="progress-container">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <button id="start-btn">INICIAR TRANSMISSÃO</button>
+    </div>
+    
+    <div id="canvas-container"></div>
+    <div class="dither-overlay"></div>
+    <div class="vignette"></div>
+
+    <!-- POPUP PRE-SAVE (Home Only) -->
+    <div id="presave-popup">
+        <div class="presave-sign-badge">PRE-SAVE</div>
+        <div class="presave-title">NOVA TRANSMISSÃO</div>
+        <div class="presave-desc">
+            ARTISTA: DEZERT HORSE<br>
+            FAIXA: NEM QUERIA VER O FIM<br>
+            FAÇA O PRE-SAVE AGORA
+        </div>
+        <a href="https://tratore.ffm.to/dzrthrs3s1" target="_blank" class="presave-btn">
+            ACESSAR LINK
+        </a>
+    </div>
+
+    <!-- SEÇÃO FOTOS -->
+    <div id="section-fotos" class="page-section">
+        <h1 class="section-title">ARQUIVOS VISUAIS</h1>
+        <div class="photo-grid">
+            <div class="photo-card">IMG_001.RAW</div>
+            <div class="photo-card">IMG_002.RAW</div>
+            <div class="photo-card">IMG_003.RAW</div>
+            <div class="photo-card">IMG_004.RAW</div>
+            <div class="photo-card">IMG_005.RAW</div>
+            <div class="photo-card">IMG_006.RAW</div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO LINKS -->
+    <div id="section-links" class="page-section">
+        <h1 class="section-title">CONEXÕES DE REDE</h1>
+        <div class="links-container">
+            <a href="#" class="link-item">SPOTIFY</a>
+            <a href="#" class="link-item">INSTAGRAM</a>
+            <a href="#" class="link-item">APPLE MUSIC</a>
+            <a href="#" class="link-item">YOUTUBE</a>
+            <a href="#" class="link-item">CONTATO</a>
+        </div>
+    </div>
+
+    <!-- HUD INTERATIVO (Home Only) -->
+    <div id="hud" class="collapsed">
+        <div class="hud-header">
+            <h2>Painel de Controlo</h2>
+            <button class="close-btn" id="close-hud-btn">×</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Velocidade Trote <span id="speed-val">100%</span></label>
+            <input type="range" id="speed-slider" min="0" max="200" value="100">
+        </div>
+
+        <div class="control-group">
+            <label>Estrutura de Dados</label>
+            <input type="range" id="structure-slider" min="0" max="100" value="0">
+        </div>
+
+        <div class="control-group">
+            <label>Alongamento Surreal</label>
+            <input type="range" id="stretch-slider" min="0" max="100" value="0">
+        </div>
+
+        <div class="control-group">
+            <label>Distorção Lente (FOV)</label>
+            <input type="range" id="fov-slider" min="20" max="120" value="40">
+        </div>
+
+        <div class="control-group">
+            <button id="ghost-btn" class="control-btn">MODO ESPECTRO [OFF]</button>
+        </div>
+
+        <div class="data-stream" id="console-log">
+            > CONECTANDO AO SERVIDOR...<br>
+        </div>
+    </div>
+
+    <!-- Botão para reabrir o HUD -->
+    <button id="hud-toggle-btn">SISTEMA [ + ]</button>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- ESTADO GLOBAL ---
+        const state = {
+            speed: 32,
+            baseSpeed: 32,
+            stretch: 0, 
+            ghostMode: false, 
+            structure: 0.0, // Wireframe Opacity & Expansion
+            structureInteracted: false,
+            time: 0,
+            loaded: false,
+            introFinished: false,
+            modelReady: false
+        };
+
+        // --- DOM Elements ---
+        const loadingScreen = document.getElementById('loading-screen');
+        const progressFill = document.getElementById('progress-fill');
+        const progressContainer = document.getElementById('progress-container');
+        const loadingText = document.getElementById('loading-text');
+        const startBtn = document.getElementById('start-btn');
+        
+        const hud = document.getElementById('hud');
+        const hudToggleBtn = document.getElementById('hud-toggle-btn');
+        const closeHudBtn = document.getElementById('close-hud-btn');
+        const consoleLog = document.getElementById('console-log');
+        const canvasContainer = document.getElementById('canvas-container');
+        const presavePopup = document.getElementById('presave-popup');
+
+        // Navigation Elements
+        const navLinks = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.page-section');
+
+        // --- NAVEGAÇÃO SPA & FILTRO DE AUDIO ---
+        // Audio Filter State
+        let audioContext = null;
+        let audioSource = null;
+        let audioFilter = null;
+        let isAudioInit = false;
+
+        function initAudio() {
+            if(isAudioInit) return;
+            
+            try {
+                // Initialize Web Audio API
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                
+                // Set up source node from the existing audio element
+                audioSource = audioContext.createMediaElementSource(bgMusic);
+                
+                // Create Lowpass Filter (Muffle effect)
+                audioFilter = audioContext.createBiquadFilter();
+                audioFilter.type = "lowpass";
+                audioFilter.frequency.value = 20000; // Start open (full freq)
+                audioFilter.Q.value = 1; // Quality factor
+
+                // Connect graph: Source -> Filter -> Destination (Speakers)
+                audioSource.connect(audioFilter);
+                audioFilter.connect(audioContext.destination);
+                
+                isAudioInit = true;
+                console.log("Audio Context Initialized");
+            } catch(e) {
+                console.error("Web Audio API not supported or error:", e);
+            }
+        }
+
+        // Apply Muffled Effect
+        function applyMuffle(enable) {
+            if(!audioFilter) return;
+
+            const currentTime = audioContext.currentTime;
+            // Smooth transition
+            if(enable) {
+                // Muffle: Cutoff down to 600Hz
+                audioFilter.frequency.cancelScheduledValues(currentTime);
+                audioFilter.frequency.exponentialRampToValueAtTime(600, currentTime + 0.5);
+            } else {
+                // Open: Cutoff up to 20000Hz
+                audioFilter.frequency.cancelScheduledValues(currentTime);
+                audioFilter.frequency.exponentialRampToValueAtTime(20000, currentTime + 0.5);
+            }
+        }
+
+        navLinks.forEach(link => {
+            if (link.classList.contains('disabled')) return;
+            // Ignora links externos na lógica de SPA
+            if (link.tagName === 'A' && link.getAttribute('href')) return;
+
+            link.addEventListener('click', () => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                const target = link.getAttribute('data-target');
+                switchPage(target);
+            });
+        });
+
+        function switchPage(page) {
+            sections.forEach(sec => sec.classList.remove('visible'));
+
+            if (page === 'home') {
+                toggleHud(true);
+                presavePopup.classList.add('visible');
+                hudToggleBtn.style.display = 'block';
+                canvasContainer.style.filter = 'blur(0px)';
+                // Remove audio filter
+                applyMuffle(false);
+            } else {
+                toggleHud(false); 
+                presavePopup.classList.remove('visible');
+                hudToggleBtn.style.display = 'none';
+                canvasContainer.style.filter = 'blur(5px) brightness(0.6)';
+                
+                const targetSec = document.getElementById(`section-${page}`);
+                if (targetSec) targetSec.classList.add('visible');
+                // Apply audio filter
+                applyMuffle(true);
+            }
+        }
+
+        // --- ÁUDIO DO SISTEMA ---
+        const bgMusic = new Audio('https://raw.githubusercontent.com/ganwalk/cavalo/main/realment%20loopada.mp3');
+        bgMusic.loop = true;
+        bgMusic.volume = 0; 
+        bgMusic.crossOrigin = "anonymous"; // Important for Web Audio API
+        bgMusic.preservesPitch = false;
+
+        function log(msg) {
+            consoleLog.innerHTML = `> ${msg}<br>` + consoleLog.innerHTML;
+        }
+
+        // --- Configuração da Cena ---
+        const scene = new THREE.Scene();
+        const bgColor = new THREE.Color(0x2b1d14);
+        scene.background = bgColor;
+        scene.fog = new THREE.Fog(0x2b1d14, 15, 60);
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(180, 80, 180); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio); 
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.BasicShadowMap;
+        canvasContainer.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 1.8;
+        controls.minDistance = 8;
+        controls.maxDistance = 200;
+        
+        const focusOffset = new THREE.Vector3(3.5, 1.2, 0);
+        controls.target.copy(focusOffset);
+        controls.enabled = false; 
+
+        // --- Luzes ---
+        // Aumentando a luz ambiente para clarear o modelo
+        const ambientLight = new THREE.AmbientLight(0x7a5c40, 1.2); 
+        scene.add(ambientLight);
+
+        // Aumentando a luz direcional
+        const dirLight = new THREE.DirectionalLight(0xffeebb, 3.5);
+        dirLight.position.set(12, 15, 8);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        scene.add(dirLight);
+
+        const rimLight = new THREE.DirectionalLight(0xffaa66, 1.5);
+        rimLight.position.set(-10, 4, -8);
+        scene.add(rimLight);
+
+        // --- Estrelas e Céu ---
+        function createStars() {
+            const starGeo = new THREE.BufferGeometry();
+            const starCount = 1500;
+            const posArray = new Float32Array(starCount * 3);
+            const sizesArray = new Float32Array(starCount);
+            const phasesArray = new Float32Array(starCount);
+
+            for(let i=0; i<starCount; i++) {
+                const r = 200 + Math.random() * 200;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                
+                posArray[i*3] = r * Math.sin(phi) * Math.cos(theta);
+                posArray[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+                posArray[i*3+2] = r * Math.cos(phi);
+
+                sizesArray[i] = 1.0 + Math.random() * 2.0;
+                phasesArray[i] = Math.random() * Math.PI * 2;
+            }
+
+            starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            starGeo.setAttribute('size', new THREE.BufferAttribute(sizesArray, 1));
+            starGeo.setAttribute('phase', new THREE.BufferAttribute(phasesArray, 1));
+
+            const starMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    color: { value: new THREE.Color(0xffeebb) }
+                },
+                vertexShader: `
+                    uniform float time;
+                    attribute float size;
+                    attribute float phase;
+                    void main() {
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        float blink = 0.8 + 0.4 * sin(time * 3.0 + phase);
+                        gl_PointSize = size * blink * (300.0 / -mvPosition.z);
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 color;
+                    void main() {
+                        if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.475) discard;
+                        gl_FragColor = vec4(color, 1.0);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const stars = new THREE.Points(starGeo, starMat);
+            scene.add(stars);
+            return stars;
+        }
+
+        const stars = createStars();
+
+        // --- Estrelas Cadentes ---
+        const shootingStars = [];
+        const shootingStarGeo = new THREE.ConeGeometry(0.2, 8, 4);
+        shootingStarGeo.rotateX(Math.PI / 2);
+        const shootingStarMat = new THREE.MeshBasicMaterial({ 
+            color: 0xffffee, 
+            transparent: true, 
+            opacity: 0.8 
+        });
+
+        function spawnShootingStar() {
+            const mesh = new THREE.Mesh(shootingStarGeo, shootingStarMat);
+            const r = 150;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI * 0.4;
+            
+            mesh.position.set(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.cos(phi) + 20, 
+                r * Math.sin(phi) * Math.sin(theta)
+            );
+
+            const target = new THREE.Vector3(
+                (Math.random() - 0.5) * 100,
+                -50,
+                (Math.random() - 0.5) * 100
+            );
+            
+            mesh.lookAt(target);
+            const speed = 1.5 + Math.random() * 2.0;
+            scene.add(mesh);
+            shootingStars.push({ mesh, speed, life: 100 });
+        }
+
+        // --- Materiais ---
+        const envMap = new THREE.CubeTextureLoader()
+            .setPath( 'https://threejs.org/examples/textures/cube/SwedishRoyalCastle/' )
+            .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
+
+        // Material Detalhado - AJUSTADO PARA SER MAIS CLARO
+        const horseMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffeebb, // Cor base mais clara (creme/dourado claro)
+            roughness: 0.2,  // Menos rugosidade para mais reflexo
+            metalness: 0.5,  // Metalness ajustado para não escurecer demais
+            envMap: envMap,
+            envMapIntensity: 1.2, // Mais influência do ambiente
+            vertexColors: true
+        });
+
+        const ghostMaterial = new THREE.MeshStandardMaterial({
+            color: 0xdcb386,
+            roughness: 0.1,
+            metalness: 0.9,
+            transparent: true,
+            opacity: 0.3,
+            envMap: envMap,
+            depthWrite: false
+        });
+
+        // Material Wireframe (Estrutura de Dados)
+        const wireMaterial = new THREE.MeshBasicMaterial({
+            color: 0xdcb386,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.0, // Inicialmente invisível
+            depthTest: false, // Ver através do modelo
+            depthWrite: false
+        });
+
+        // --- Carregar Modelo GLTF ---
+        let horseModel, mixer, wireModel;
+
+        function loadHorse() {
+            const loader = new GLTFLoader();
+            loader.load('https://threejs.org/examples/models/gltf/Horse.glb', (gltf) => {
+                horseModel = gltf.scene.children[0];
+                
+                // Rotação Y para alinhar com movimento do chão
+                horseModel.rotation.y = Math.PI / 2; 
+
+                horseModel.scale.set(0.025, 0.025, 0.025); 
+                horseModel.position.y = 0;
+                
+                horseModel.material = horseMaterial;
+                horseModel.castShadow = true;
+                horseModel.receiveShadow = true;
+                
+                scene.add(horseModel);
+
+                // Clone para Wireframe Overlay
+                wireModel = horseModel.clone();
+                wireModel.material = wireMaterial;
+                wireModel.scale.set(0.0251, 0.0251, 0.0251); // Ligeiramente maior para evitar z-fighting
+                scene.add(wireModel);
+
+                // Animação
+                mixer = new THREE.AnimationMixer(horseModel);
+                const action = mixer.clipAction(gltf.animations[0]);
+                action.timeScale = 1.0; 
+                action.play();
+
+                // Mixer separado para o wireframe (sincronizado)
+                const wireMixer = new THREE.AnimationMixer(wireModel);
+                const wireAction = wireMixer.clipAction(gltf.animations[0]);
+                wireAction.timeScale = 1.0;
+                wireAction.play();
+                
+                // Hack: Sincronizar mixers no loop de animação
+                mixer.wireMixer = wireMixer;
+
+                state.modelReady = true;
+            }, undefined, (error) => {
+                console.error(error);
+                loadingText.innerText = "ERRO NO CARREGAMENTO";
+            });
+        }
+
+        // --- Ambiente Chão/Pedras Variadas ---
+        const planeGeo = new THREE.PlaneGeometry(800, 800);
+        const planeMat = new THREE.MeshStandardMaterial({ 
+            color: 0x5c3a21, 
+            roughness: 0.9 
+        });
+        const ground = new THREE.Mesh(planeGeo, planeMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        const desertGroup = new THREE.Group();
+        scene.add(desertGroup);
+
+        // Pedras Tipo A (Dodecaedro)
+        const rockGeo = new THREE.DodecahedronGeometry(0.7, 0);
+        const rockMat = new THREE.MeshStandardMaterial({ color: 0x3d2614, roughness: 0.8 });
+        const rockMesh = new THREE.InstancedMesh(rockGeo, rockMat, 250); // Increased count
+        rockMesh.receiveShadow = true;
+        rockMesh.castShadow = true;
+        desertGroup.add(rockMesh);
+
+        const dummy = new THREE.Object3D();
+        
+        // Randomizar Pedras A - Wide distribution
+        for (let i = 0; i < 250; i++) {
+            dummy.position.set(
+                (Math.random() * 1000) - 200, // X: -200 to 800
+                0.2, 
+                (Math.random() - 0.5) * 300 // Z: -150 to 150
+            );
+            // Variância de escala mais extrema
+            const s = 0.2 + Math.random() * 1.5;
+            dummy.scale.set(s, s * (0.5 + Math.random()), s);
+            dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            dummy.updateMatrix();
+            rockMesh.setMatrixAt(i, dummy.matrix);
+        }
+
+        // --- Lógica de Carregamento ---
+        const loadingTerms = [
+            "CALIBRANDO CASCOS...",
+            "SINTETIZANDO CRINA...",
+            "ALINHANDO VÉRTEBRAS...",
+            "CARREGANDO MATRIZ ÓSSEA...",
+            "POLINDO TEXTURAS...",
+            "OTIMIZANDO GALOPE...",
+            "SINCRONIZANDO TROTE...",
+            "INJETANDO ALGORITMOS...",
+            "RENDERIZANDO DESERTO..."
+        ];
+
+        function simulateLoading() {
+            loadHorse();
+            let progress = 0;
+            let termIndex = 0;
+            
+            const interval = setInterval(() => {
+                if (progress < 90) progress += Math.random() * 2;
+                if (state.modelReady && progress >= 90) progress = 100;
+
+                if (Math.floor(progress) % 15 === 0) {
+                    termIndex = (termIndex + 1) % loadingTerms.length;
+                    loadingText.innerText = loadingTerms[termIndex];
+                }
+
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    finishLoading();
+                }
+                progressFill.style.width = `${progress}%`;
+            }, 50);
+        }
+
+        function finishLoading() {
+            loadingText.innerText = "SISTEMA PRONTO";
+            progressContainer.style.display = 'none';
+            startBtn.style.display = 'block';
+        }
+
+        function startSystem() {
+            // Inicializar contexto de áudio
+            initAudio();
+
+            // Tocar música
+            bgMusic.play().then(() => {
+                console.log("Audio iniciado");
+                let vol = 0;
+                const targetVol = 0.5;
+                const fadeDuration = 2500;
+                const fadeStep = 0.02;
+                const fadeInterval = setInterval(() => {
+                    if (vol < targetVol) {
+                        vol += fadeStep;
+                        if (vol > targetVol) vol = targetVol;
+                        bgMusic.volume = vol;
+                    } else {
+                        clearInterval(fadeInterval);
+                    }
+                }, fadeDuration * (fadeStep / targetVol));
+            }).catch(e => console.error("Erro audio", e));
+
+            loadingScreen.style.opacity = 0;
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                startIntro();
+            }, 1000);
+        }
+
+        startBtn.addEventListener('click', startSystem);
+
+        function startIntro() {
+            state.loaded = true;
+        }
+
+        // --- INTERAÇÃO HUD ---
+        const speedSlider = document.getElementById('speed-slider');
+        const structureSlider = document.getElementById('structure-slider'); 
+        const stretchSlider = document.getElementById('stretch-slider'); 
+        const fovSlider = document.getElementById('fov-slider');
+        const ghostBtn = document.getElementById('ghost-btn');
+        const speedVal = document.getElementById('speed-val');
+
+        function toggleHud(open) {
+            if (open) {
+                hud.classList.remove('collapsed');
+                hudToggleBtn.style.pointerEvents = 'none';
+                log("PAINEL EXPANDIDO");
+            } else {
+                hud.classList.add('collapsed');
+                hudToggleBtn.style.pointerEvents = 'auto';
+            }
+        }
+
+        hudToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleHud(true);
+        });
+
+        closeHudBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleHud(false);
+        });
+
+        canvasContainer.addEventListener('mousedown', () => {
+            if (!hud.classList.contains('collapsed')) {
+                toggleHud(false);
+            }
+        });
+
+        hud.addEventListener('mousedown', (e) => e.stopPropagation());
+
+        // 1. VELOCIDADE
+        speedSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            state.speed = state.baseSpeed * (val / 100);
+            speedVal.innerText = `${val}%`;
+            
+            const visualRate = (val / 100) * 2.0; 
+            if (mixer) {
+                mixer.timeScale = visualRate;
+                if(mixer.wireMixer) mixer.wireMixer.timeScale = visualRate;
+            }
+
+            const audioRate = val / 100;
+            bgMusic.playbackRate = audioRate <= 0.1 ? 0.1 : audioRate; 
+        });
+
+        // 2. ESTRUTURA (WIREFRAME)
+        structureSlider.addEventListener('input', (e) => {
+            state.structureInteracted = true;
+            state.structure = parseInt(e.target.value) / 100;
+            wireMaterial.opacity = state.structure;
+        });
+
+        // 3. ALONGAMENTO
+        stretchSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            state.stretch = val / 100; 
+        });
+
+        // 4. FOV (Campo de Visão) - Restaurado
+        fovSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            camera.fov = val;
+            camera.updateProjectionMatrix();
+        });
+
+        ghostBtn.addEventListener('click', () => {
+            state.ghostMode = !state.ghostMode;
+            
+            if (state.ghostMode) {
+                ghostBtn.innerText = "MODO ESPECTRO [ON]";
+                ghostBtn.classList.add('active');
+                if(horseModel) horseModel.material = ghostMaterial;
+                log("MATERIAL: ETÉREO");
+            } else {
+                ghostBtn.innerText = "MODO ESPECTRO [OFF]";
+                ghostBtn.classList.remove('active');
+                if(horseModel) {
+                    horseModel.material = horseMaterial;
+                }
+                log("MATERIAL: SÓLIDO");
+            }
+        });
+
+        // --- ANIMAÇÃO ---
+        const clock = new THREE.Clock();
+        const targetCamPos = new THREE.Vector3(16, 5, 16); 
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            state.time += delta; 
+            
+            if(mixer) {
+                mixer.update(delta);
+                if(mixer.wireMixer) mixer.wireMixer.update(delta);
+            }
+
+            // Auto-animate structure slider
+            if (!state.structureInteracted) {
+                // Ciclo total de 6 segundos
+                const cycleDuration = 6.0;
+                const pauseDuration = 2.0; // 2 segundos de pausa no 0%
+                const localTime = state.time % cycleDuration;
+                let osc = 0;
+
+                if (localTime > pauseDuration) {
+                    // Tempo ativo (após a pausa)
+                    const activeTime = localTime - pauseDuration;
+                    const activeDuration = cycleDuration - pauseDuration;
+                    // Mapeia o tempo ativo para 0 a PI (meio ciclo de seno) para ir de 0 -> 1 -> 0
+                    osc = Math.sin((activeTime / activeDuration) * Math.PI);
+                } else {
+                    // Tempo de pausa
+                    osc = 0;
+                }
+
+                state.structure = osc;
+                wireMaterial.opacity = osc;
+                structureSlider.value = Math.floor(osc * 100);
+            }
+
+            // Estrelas
+            stars.material.uniforms.time.value = clock.getElapsedTime();
+
+            // Estrelas Cadentes
+            if (Math.random() > 0.98) spawnShootingStar();
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                const s = shootingStars[i];
+                s.mesh.translateZ(s.speed); 
+                s.life--;
+                s.mesh.material.opacity = s.life / 100 * 0.8;
+                if (s.life <= 0) {
+                    scene.remove(s.mesh);
+                    shootingStars.splice(i, 1);
+                }
+            }
+
+            // Intro Zoom
+            if (state.loaded && !state.introFinished) {
+                camera.position.lerp(targetCamPos, delta * 1.5);
+                camera.lookAt(focusOffset);
+                if (camera.position.distanceTo(targetCamPos) < 1.0) {
+                    state.introFinished = true;
+                    controls.enabled = true; 
+                    toggleHud(true); 
+                    setTimeout(() => presavePopup.classList.add('visible'), 500);
+                    log("SISTEMA ONLINE");
+                }
+            }
+
+            // --- Manipulação do Modelo GLTF ---
+            if (horseModel) {
+                const stretch = state.stretch;
+                const baseScale = 0.025;
+                
+                // Alongamento Surreal (Y aumenta, X/Z diminuem para manter "volume" bizarro)
+                const scaleY = baseScale * (1 + stretch * 3.0);
+                const scaleXZ = baseScale * (1 - stretch * 0.4); // Thinning effect
+                
+                horseModel.scale.set(scaleXZ, scaleY, scaleXZ);
+                
+                // Wireframe Sync (Without Expansion)
+                if(wireModel) {
+                    wireModel.scale.set(scaleXZ, scaleY, scaleXZ);
+                }
+            }
+
+            // Mover Pedras (Ajuste para sincronia com animação)
+            desertGroup.position.x -= (state.speed / 80); 
+            if (desertGroup.position.x < -600) desertGroup.position.x = 0; // Loop mais longo
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        simulateLoading();
+        animate();
+
+    </script>
+</body>
+</html>
