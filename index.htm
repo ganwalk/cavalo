@@ -832,8 +832,7 @@
 
     <!-- FOOTER DESKTOP -->
     <div class="desktop-footer">
-        © 2026 Todos os direitos Reservados<br>
-        <a href="https://instagram.com/ganwalk" target="_blank">Imaginado com o ♡ por @ganwalk</a>
+        © 2026 // Dezert Horse - <a href="https://instagram.com/ganwalk" target="_blank">Site imaginado por @ganwalk</a>
     </div>
 
     <!-- SEÇÃO FOTOS -->
@@ -954,7 +953,11 @@
         let audioContext = null;
         let audioSource = null;
         let menuFilter = null; // Renamed for clarity (Muffles when in menu)
-        let fovFilter = null;  // New filter for FOV Slider
+        
+        // Fov Filters (Dual Stage for Clean Start)
+        let fovFilterHigh = null; // Highpass (Corta graves)
+        let fovFilterLow = null;  // Lowpass (Corta agudos)
+        
         let audioAnalyser = null;
         let distortionNode = null; // Overdrive Node (Stretch)
         let isAudioInit = false;
@@ -977,13 +980,19 @@
                 distortionNode.curve = makeDistortionCurve(0);
                 distortionNode.oversample = '4x';
 
-                // 2. FOV Filter (Bass Boost / Lowpass) - Controlled by FOV Slider
-                fovFilter = audioContext.createBiquadFilter();
-                fovFilter.type = "lowpass";
-                fovFilter.frequency.value = 20000; // Open by default
-                fovFilter.Q.value = 1;
+                // 2. FOV Filters (Series: Highpass + Lowpass)
+                // Inicializa totalmente aberto (SOM LIMPO)
+                fovFilterHigh = audioContext.createBiquadFilter();
+                fovFilterHigh.type = "highpass";
+                fovFilterHigh.frequency.value = 20; // Deixa passar tudo acima de 20Hz
+                fovFilterHigh.Q.value = 0.7;
 
-                // 3. Menu Filter (Muffle) - Controlled by Navigation
+                fovFilterLow = audioContext.createBiquadFilter();
+                fovFilterLow.type = "lowpass";
+                fovFilterLow.frequency.value = 22000; // Deixa passar tudo abaixo de 22kHz
+                fovFilterLow.Q.value = 0.7;
+
+                // 3. Menu Filter (Muffle/Lowpass) - Controlled by Navigation (Only for page switch)
                 menuFilter = audioContext.createBiquadFilter();
                 menuFilter.type = "lowpass";
                 menuFilter.frequency.value = 20000; // Start open
@@ -993,19 +1002,20 @@
                 audioAnalyser = audioContext.createAnalyser();
                 audioAnalyser.fftSize = 512;
 
-                // Connect graph: Source -> Distortion -> FOV Filter -> Menu Filter -> Analyser -> Destination
+                // Connect graph: Source -> Distortion -> FovHigh -> FovLow -> MenuFilter -> Analyser -> Destination
                 audioSource.connect(distortionNode);
-                distortionNode.connect(fovFilter);
-                fovFilter.connect(menuFilter);
+                distortionNode.connect(fovFilterHigh);
+                fovFilterHigh.connect(fovFilterLow);
+                fovFilterLow.connect(menuFilter);
                 menuFilter.connect(audioAnalyser);
                 audioAnalyser.connect(audioContext.destination);
                 
                 isAudioInit = true;
                 console.log("Audio Context Initialized");
                 
-                // Ensure initial states
+                // Ensure initial states (Passa o valor padrão 40)
                 updateOverdrive();
-                updateFovAudio(40); // Default FOV value
+                updateFovAudio(40); 
             } catch(e) {
                 console.error("Web Audio API not supported or error:", e);
             }
@@ -1035,28 +1045,31 @@
         }
 
         // Update Audio based on FOV Slider (20 - 120)
-        // Right (120) -> High Bass, Low Mids/Highs
-        // Left (20) -> Normal
+        // Lógica: 40 é o "Normal/Limpo". Acima de 40 começa a filtrar para focar nos médios.
         function updateFovAudio(val) {
-            if (!fovFilter || !audioContext) return;
+            if (!fovFilterHigh || !fovFilterLow || !audioContext) return;
             
-            // Normalize 20-120 to 0-1
-            const t = (val - 20) / 100; 
+            // Normaliza apenas a parte de "efeito" (40 até 120).
+            // Se val <= 40, t = 0 (Efeito Zerado).
+            const t = Math.max(0, (val - 40) / 80); 
             
             const currentTime = audioContext.currentTime;
             
-            // Frequency mapping: 
-            // t=0 (Left) -> 20000Hz (Open)
-            // t=1 (Right) -> 200Hz (Bass only)
-            // Using exponential ramp feels more natural for frequency
-            const freq = 20000 * Math.pow(0.01, t); // 20000 -> ~200
+            // Frequências Alvo para Efeito Máximo (t=1):
+            // HP sobe para ~700Hz (Corta graves e sub-graves)
+            // LP desce para ~3000Hz (Corta brilho e chiado agudo)
+            // Resultado: Foco na voz e médios (Rádio/Telefone)
             
-            // Q (Resonance) mapping:
-            // Boost resonance as filter closes to emphasize bass kick
-            const q = 1 + (t * 8); 
+            const hpFreq = 20 + (Math.pow(t, 2) * 700); // Curva exponencial para suavidade
+            const lpFreq = 22000 * Math.pow(0.15, t);   // Decaimento exponencial 22k -> ~3.3k
 
-            fovFilter.frequency.setTargetAtTime(freq, currentTime, 0.1);
-            fovFilter.Q.setTargetAtTime(q, currentTime, 0.1);
+            fovFilterHigh.frequency.setTargetAtTime(hpFreq, currentTime, 0.1);
+            fovFilterLow.frequency.setTargetAtTime(lpFreq, currentTime, 0.1);
+            
+            // Aumenta levemente a ressonância (Q) conforme o efeito aperta para "colorir" o som
+            const q = 0.7 + (t * 0.8);
+            fovFilterHigh.Q.setTargetAtTime(q, currentTime, 0.1);
+            fovFilterLow.Q.setTargetAtTime(q, currentTime, 0.1);
         }
 
         // Apply Muffled Effect (Menu Navigation)
