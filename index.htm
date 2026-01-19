@@ -104,6 +104,36 @@
             color: #8c6e50;
         }
 
+        /* --- FOOTER DESKTOP --- */
+        .desktop-footer {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            text-align: right; 
+            color: #dcb386;
+            font-family: 'VT323', monospace;
+            font-size: 10px; 
+            letter-spacing: 1px;
+            opacity: 0.5; 
+            line-height: 1.4;
+            z-index: 20;
+            pointer-events: none; 
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .desktop-footer a {
+            color: #dcb386;
+            text-decoration: none;
+            pointer-events: auto; 
+            transition: opacity 0.3s;
+        }
+        
+        .desktop-footer a:hover {
+            opacity: 1;
+            text-decoration: none; 
+            text-shadow: 0 0 5px #dcb386;
+        }
+
         /* Elementos Mobile (Ocultos por padrão no Desktop) */
         .mobile-menu-msg {
             display: none;
@@ -134,6 +164,50 @@
             padding: 5px 15px;
             cursor: pointer;
             text-transform: uppercase;
+        }
+
+        /* --- TOOLTIP 3D (Camera Hint) --- */
+        .cam-tooltip {
+            position: absolute;
+            pointer-events: none;
+            z-index: 50;
+            display: flex;
+            opacity: 0; 
+            transition: opacity 1s ease;
+        }
+
+        .cam-marker {
+            width: 8px;
+            height: 8px;
+            background: #dcb386;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #dcb386;
+            position: relative;
+        }
+
+        .cam-line {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 60px;
+            height: 1px;
+            background: #dcb386;
+            transform-origin: 0 0;
+            transform: rotate(-45deg);
+        }
+
+        .cam-content {
+            position: absolute;
+            top: -50px;
+            left: 50px;
+            background: rgba(20, 10, 5, 0.8);
+            border: 1px solid #dcb386;
+            padding: 5px 10px;
+            color: #dcb386;
+            font-size: 14px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(220, 179, 134, 0.2);
         }
 
         /* --- SECÇÕES DE CONTEÚDO --- */
@@ -609,6 +683,11 @@
                 padding: 10px 0;
             }
 
+            /* Ocultar footer desktop no mobile */
+            .desktop-footer {
+                display: none;
+            }
+
             /* ESTADO ABERTO DO MENU MOBILE */
             nav.mobile-open {
                 height: 100vh; /* Ocupa tela toda */
@@ -751,6 +830,12 @@
         </a>
     </div>
 
+    <!-- FOOTER DESKTOP -->
+    <div class="desktop-footer">
+        © 2026 Todos os direitos Reservados<br>
+        <a href="https://instagram.com/ganwalk" target="_blank">Imaginado com o ♡ por @ganwalk</a>
+    </div>
+
     <!-- SEÇÃO FOTOS -->
     <div id="section-fotos" class="page-section">
         <h1 class="section-title">ARQUIVOS VISUAIS</h1>
@@ -815,6 +900,13 @@
     <!-- Botão para reabrir o HUD -->
     <button id="hud-toggle-btn">SISTEMA [ + ]</button>
 
+    <!-- Tooltip Câmera -->
+    <div id="cam-tooltip" class="cam-tooltip">
+        <div class="cam-marker"></div>
+        <div class="cam-line"></div>
+        <div class="cam-content">GIRAR CÂMERA [ ARRASTE ]</div>
+    </div>
+
     <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -828,6 +920,7 @@
             ghostMode: false, 
             structure: 0.0, // Wireframe Opacity & Expansion
             structureInteracted: false,
+            cameraInteracted: false, // Flag para controle da tooltip
             time: 0,
             loaded: false,
             introFinished: false,
@@ -847,6 +940,7 @@
         const consoleLog = document.getElementById('console-log');
         const canvasContainer = document.getElementById('canvas-container');
         const presavePopup = document.getElementById('presave-popup');
+        const camTooltip = document.getElementById('cam-tooltip');
 
         // Navigation Elements
         const nav = document.getElementById('main-nav');
@@ -859,7 +953,10 @@
         // Audio Filter State
         let audioContext = null;
         let audioSource = null;
-        let audioFilter = null;
+        let menuFilter = null; // Renamed for clarity (Muffles when in menu)
+        let fovFilter = null;  // New filter for FOV Slider
+        let audioAnalyser = null;
+        let distortionNode = null; // Overdrive Node (Stretch)
         let isAudioInit = false;
 
         function initAudio() {
@@ -873,37 +970,140 @@
                 // Set up source node from the existing audio element
                 audioSource = audioContext.createMediaElementSource(bgMusic);
                 
-                // Create Lowpass Filter (Muffle effect)
-                audioFilter = audioContext.createBiquadFilter();
-                audioFilter.type = "lowpass";
-                audioFilter.frequency.value = 20000; // Start open (full freq)
-                audioFilter.Q.value = 1; // Quality factor
+                // Create Filters
+                
+                // 1. Distortion (Overdrive) - Controlled by Stretch Slider
+                distortionNode = audioContext.createWaveShaper();
+                distortionNode.curve = makeDistortionCurve(0);
+                distortionNode.oversample = '4x';
 
-                // Connect graph: Source -> Filter -> Destination (Speakers)
-                audioSource.connect(audioFilter);
-                audioFilter.connect(audioContext.destination);
+                // 2. FOV Filter (Bass Boost / Lowpass) - Controlled by FOV Slider
+                fovFilter = audioContext.createBiquadFilter();
+                fovFilter.type = "lowpass";
+                fovFilter.frequency.value = 20000; // Open by default
+                fovFilter.Q.value = 1;
+
+                // 3. Menu Filter (Muffle) - Controlled by Navigation
+                menuFilter = audioContext.createBiquadFilter();
+                menuFilter.type = "lowpass";
+                menuFilter.frequency.value = 20000; // Start open
+                menuFilter.Q.value = 1; 
+
+                // Analyser
+                audioAnalyser = audioContext.createAnalyser();
+                audioAnalyser.fftSize = 512;
+
+                // Connect graph: Source -> Distortion -> FOV Filter -> Menu Filter -> Analyser -> Destination
+                audioSource.connect(distortionNode);
+                distortionNode.connect(fovFilter);
+                fovFilter.connect(menuFilter);
+                menuFilter.connect(audioAnalyser);
+                audioAnalyser.connect(audioContext.destination);
                 
                 isAudioInit = true;
                 console.log("Audio Context Initialized");
+                
+                // Ensure initial states
+                updateOverdrive();
+                updateFovAudio(40); // Default FOV value
             } catch(e) {
                 console.error("Web Audio API not supported or error:", e);
             }
         }
 
-        // Apply Muffled Effect
+        // Helper to generate distortion curve
+        function makeDistortionCurve(amount) {
+            const k = typeof amount === 'number' ? amount : 0;
+            const n_samples = 44100;
+            const curve = new Float32Array(n_samples);
+            const deg = Math.PI / 180;
+            for (let i = 0; i < n_samples; ++i) {
+                const x = i * 2 / n_samples - 1;
+                if (k < 1) {
+                    curve[i] = x;
+                } else {
+                    curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+                }
+            }
+            return curve;
+        }
+
+        function updateOverdrive() {
+            if (!distortionNode) return;
+            const amount = state.stretch * 400;
+            distortionNode.curve = makeDistortionCurve(amount);
+        }
+
+        // Update Audio based on FOV Slider (20 - 120)
+        // Right (120) -> High Bass, Low Mids/Highs
+        // Left (20) -> Normal
+        function updateFovAudio(val) {
+            if (!fovFilter || !audioContext) return;
+            
+            // Normalize 20-120 to 0-1
+            const t = (val - 20) / 100; 
+            
+            const currentTime = audioContext.currentTime;
+            
+            // Frequency mapping: 
+            // t=0 (Left) -> 20000Hz (Open)
+            // t=1 (Right) -> 200Hz (Bass only)
+            // Using exponential ramp feels more natural for frequency
+            const freq = 20000 * Math.pow(0.01, t); // 20000 -> ~200
+            
+            // Q (Resonance) mapping:
+            // Boost resonance as filter closes to emphasize bass kick
+            const q = 1 + (t * 8); 
+
+            fovFilter.frequency.setTargetAtTime(freq, currentTime, 0.1);
+            fovFilter.Q.setTargetAtTime(q, currentTime, 0.1);
+        }
+
+        // Apply Muffled Effect (Menu Navigation)
         function applyMuffle(enable) {
-            if(!audioFilter) return;
+            if(!menuFilter) return;
 
             const currentTime = audioContext.currentTime;
-            // Smooth transition
             if(enable) {
-                // Muffle: Cutoff down to 600Hz
-                audioFilter.frequency.cancelScheduledValues(currentTime);
-                audioFilter.frequency.exponentialRampToValueAtTime(600, currentTime + 0.5);
+                menuFilter.frequency.cancelScheduledValues(currentTime);
+                menuFilter.frequency.exponentialRampToValueAtTime(600, currentTime + 0.5);
             } else {
-                // Open: Cutoff up to 20000Hz
-                audioFilter.frequency.cancelScheduledValues(currentTime);
-                audioFilter.frequency.exponentialRampToValueAtTime(20000, currentTime + 0.5);
+                menuFilter.frequency.cancelScheduledValues(currentTime);
+                menuFilter.frequency.exponentialRampToValueAtTime(20000, currentTime + 0.5);
+            }
+        }
+
+        // Toggle HUD logic (Refatorada para Mobile First Logic)
+        function toggleHud(open) {
+            // 1. Estado do HUD
+            if (open) {
+                hud.classList.remove('collapsed');
+                log("PAINEL EXPANDIDO");
+            } else {
+                hud.classList.add('collapsed');
+            }
+
+            // 2. Lógica Responsiva (Mobile vs Desktop)
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Mobile: Comportamento Exclusivo (Ou HUD ou Pre-save)
+                if (open) {
+                    // Se abriu HUD, esconde Pre-save
+                    presavePopup.classList.remove('visible');
+                } else {
+                    // Se fechou HUD, mostra Pre-save (se estiver na Home)
+                    const isHome = !document.querySelector('.page-section.visible');
+                    if (isHome && state.introFinished) {
+                        presavePopup.classList.add('visible');
+                    }
+                }
+            } else {
+                // Desktop: Podem coexistir, mas garantimos que o Pre-save esteja visível na Home
+                const isHome = !document.querySelector('.page-section.visible');
+                if (isHome && state.introFinished) {
+                    presavePopup.classList.add('visible');
+                }
             }
         }
 
@@ -936,15 +1136,46 @@
             });
         });
 
+        // Hide Tooltip Function
+        function hideCameraTooltip() {
+            if (!state.cameraInteracted) {
+                state.cameraInteracted = true;
+                camTooltip.style.opacity = '0';
+            }
+        }
+
+        // Interaction Listeners for Tooltip
+        canvasContainer.addEventListener('mousedown', () => {
+            if (!hud.classList.contains('collapsed')) {
+                toggleHud(false);
+            }
+            hideCameraTooltip();
+        });
+
+        canvasContainer.addEventListener('touchstart', () => {
+             hideCameraTooltip();
+        }, {passive: true});
+
         function switchPage(page) {
             sections.forEach(sec => sec.classList.remove('visible'));
 
             if (page === 'home') {
-                toggleHud(true);
-                presavePopup.classList.add('visible');
+                const isMobile = window.innerWidth <= 768;
+                
+                // Lógica de Navegação Home Responsiva
+                if (isMobile) {
+                    toggleHud(false); // Mobile: Fecha HUD -> toggleHud vai mostrar o Pre-save
+                } else {
+                    toggleHud(true); // Desktop: Abre HUD e Pre-save (via toggleHud logic)
+                }
+                
                 hudToggleBtn.style.display = 'block';
                 canvasContainer.style.filter = 'blur(0px)';
-                // Remove audio filter
+                
+                if (!state.cameraInteracted && state.introFinished) {
+                    camTooltip.style.opacity = '1';
+                }
+                
                 applyMuffle(false);
             } else {
                 toggleHud(false); 
@@ -952,9 +1183,10 @@
                 hudToggleBtn.style.display = 'none';
                 canvasContainer.style.filter = 'blur(5px) brightness(0.6)';
                 
+                camTooltip.style.opacity = '0';
+                
                 const targetSec = document.getElementById(`section-${page}`);
                 if (targetSec) targetSec.classList.add('visible');
-                // Apply audio filter
                 applyMuffle(true);
             }
         }
@@ -963,7 +1195,7 @@
         const bgMusic = new Audio('https://raw.githubusercontent.com/ganwalk/cavalo/main/realment%20loopada.mp3');
         bgMusic.loop = true;
         bgMusic.volume = 0; 
-        bgMusic.crossOrigin = "anonymous"; // Important for Web Audio API
+        bgMusic.crossOrigin = "anonymous"; 
         bgMusic.preservesPitch = false;
 
         function log(msg) {
@@ -998,11 +1230,9 @@
         controls.enabled = false; 
 
         // --- Luzes ---
-        // Aumentando a luz ambiente para clarear o modelo
         const ambientLight = new THREE.AmbientLight(0x7a5c40, 1.2); 
         scene.add(ambientLight);
 
-        // Aumentando a luz direcional
         const dirLight = new THREE.DirectionalLight(0xffeebb, 3.5);
         dirLight.position.set(12, 15, 8);
         dirLight.castShadow = true;
@@ -1115,11 +1345,11 @@
 
         // Material Detalhado - AJUSTADO PARA SER MAIS CLARO
         const horseMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffeebb, // Cor base mais clara (creme/dourado claro)
-            roughness: 0.2,  // Menos rugosidade para mais reflexo
-            metalness: 0.5,  // Metalness ajustado para não escurecer demais
+            color: 0xffeebb, 
+            roughness: 0.2, 
+            metalness: 0.5, 
             envMap: envMap,
-            envMapIntensity: 1.2, // Mais influência do ambiente
+            envMapIntensity: 1.2, 
             vertexColors: true
         });
 
@@ -1138,50 +1368,50 @@
             color: 0xdcb386,
             wireframe: true,
             transparent: true,
-            opacity: 0.0, // Inicialmente invisível
-            depthTest: false, // Ver através do modelo
+            opacity: 0.0, 
+            depthTest: false, 
             depthWrite: false
         });
 
         // --- Carregar Modelo GLTF ---
-        let horseModel, mixer, wireModel;
+        let horseModel, mixer, wireModel, camAnchor;
 
         function loadHorse() {
             const loader = new GLTFLoader();
             loader.load('https://threejs.org/examples/models/gltf/Horse.glb', (gltf) => {
                 horseModel = gltf.scene.children[0];
-                
-                // Rotação Y para alinhar com movimento do chão
                 horseModel.rotation.y = Math.PI / 2; 
-
                 horseModel.scale.set(0.025, 0.025, 0.025); 
                 horseModel.position.y = 0;
-                
                 horseModel.material = horseMaterial;
                 horseModel.castShadow = true;
                 horseModel.receiveShadow = true;
-                
                 scene.add(horseModel);
 
-                // Clone para Wireframe Overlay
                 wireModel = horseModel.clone();
                 wireModel.material = wireMaterial;
-                wireModel.scale.set(0.0251, 0.0251, 0.0251); // Ligeiramente maior para evitar z-fighting
+                wireModel.scale.set(0.0251, 0.0251, 0.0251); 
+                
+                // IMPORTANT: Ensure horse lines draw ON TOP of ground lines
+                wireModel.renderOrder = 10; 
+
                 scene.add(wireModel);
 
-                // Animação
+                // Add Anchor for Camera Tooltip (Attached to horse)
+                camAnchor = new THREE.Object3D();
+                camAnchor.position.set(0, 100, 50); // Offset relative to horse center
+                horseModel.add(camAnchor);
+
                 mixer = new THREE.AnimationMixer(horseModel);
                 const action = mixer.clipAction(gltf.animations[0]);
                 action.timeScale = 1.0; 
                 action.play();
 
-                // Mixer separado para o wireframe (sincronizado)
                 const wireMixer = new THREE.AnimationMixer(wireModel);
                 const wireAction = wireMixer.clipAction(gltf.animations[0]);
                 wireAction.timeScale = 1.0;
                 wireAction.play();
                 
-                // Hack: Sincronizar mixers no loop de animação
                 mixer.wireMixer = wireMixer;
 
                 state.modelReady = true;
@@ -1192,7 +1422,7 @@
         }
 
         // --- Ambiente Chão/Pedras Variadas ---
-        const planeGeo = new THREE.PlaneGeometry(2000, 2000); // Aumentei para garantir cobertura
+        const planeGeo = new THREE.PlaneGeometry(2000, 2000); 
         const planeMat = new THREE.MeshStandardMaterial({ 
             color: 0x5c3a21, 
             roughness: 0.9 
@@ -1207,7 +1437,11 @@
         const gridGeo = new THREE.PlaneGeometry(2000, 2000, 100, 100);
         const groundWire = new THREE.Mesh(gridGeo, wireMaterial);
         groundWire.rotation.x = -Math.PI / 2;
-        groundWire.position.y = 0.1; // Levemente acima para não z-fight
+        groundWire.position.y = 0.1; 
+        
+        // IMPORTANT: Ensure ground lines draw BEHIND horse lines
+        groundWire.renderOrder = 1;
+
         scene.add(groundWire);
 
         const desertGroup = new THREE.Group();
@@ -1216,21 +1450,19 @@
         // Pedras Tipo A (Dodecaedro)
         const rockGeo = new THREE.DodecahedronGeometry(0.7, 0);
         const rockMat = new THREE.MeshStandardMaterial({ color: 0x3d2614, roughness: 0.8 });
-        const rockMesh = new THREE.InstancedMesh(rockGeo, rockMat, 250); // Increased count
+        const rockMesh = new THREE.InstancedMesh(rockGeo, rockMat, 250); 
         rockMesh.receiveShadow = true;
         rockMesh.castShadow = true;
         desertGroup.add(rockMesh);
 
         const dummy = new THREE.Object3D();
         
-        // Randomizar Pedras A - Wide distribution
         for (let i = 0; i < 250; i++) {
             dummy.position.set(
-                (Math.random() * 1000) - 200, // X: -200 to 800
+                (Math.random() * 1000) - 200, 
                 0.2, 
-                (Math.random() - 0.5) * 300 // Z: -150 to 150
+                (Math.random() - 0.5) * 300 
             );
-            // Variância de escala mais extrema
             const s = 0.2 + Math.random() * 1.5;
             dummy.scale.set(s, s * (0.5 + Math.random()), s);
             dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
@@ -1281,10 +1513,8 @@
         }
 
         function startSystem() {
-            // Inicializar contexto de áudio
             initAudio();
 
-            // Tocar música
             bgMusic.play().then(() => {
                 console.log("Audio iniciado");
                 let vol = 0;
@@ -1322,17 +1552,6 @@
         const fovSlider = document.getElementById('fov-slider');
         const ghostBtn = document.getElementById('ghost-btn');
         const speedVal = document.getElementById('speed-val');
-
-        function toggleHud(open) {
-            if (open) {
-                hud.classList.remove('collapsed');
-                hudToggleBtn.style.pointerEvents = 'none';
-                log("PAINEL EXPANDIDO");
-            } else {
-                hud.classList.add('collapsed');
-                hudToggleBtn.style.pointerEvents = 'auto';
-            }
-        }
 
         hudToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1375,17 +1594,20 @@
             wireMaterial.opacity = state.structure;
         });
 
-        // 3. ALONGAMENTO
+        // 3. ALONGAMENTO (Overdrive)
         stretchSlider.addEventListener('input', (e) => {
             const val = parseInt(e.target.value);
-            state.stretch = val / 100; 
+            state.stretch = val / 100;
+            updateOverdrive();
         });
 
-        // 4. FOV (Campo de Visão) - Restaurado
+        // 4. FOV (Campo de Visão + Audio Filter)
         fovSlider.addEventListener('input', (e) => {
             const val = parseInt(e.target.value);
             camera.fov = val;
             camera.updateProjectionMatrix();
+            // Update audio filter based on FOV
+            updateFovAudio(val);
         });
 
         ghostBtn.addEventListener('click', () => {
@@ -1409,6 +1631,7 @@
         // --- ANIMAÇÃO ---
         const clock = new THREE.Clock();
         const targetCamPos = new THREE.Vector3(16, 5, 16); 
+        const tempV = new THREE.Vector3();
 
         function animate() {
             requestAnimationFrame(animate);
@@ -1423,20 +1646,16 @@
 
             // Auto-animate structure slider
             if (!state.structureInteracted) {
-                // Ciclo total de 6 segundos
                 const cycleDuration = 6.0;
-                const pauseDuration = 2.0; // 2 segundos de pausa no 0%
+                const pauseDuration = 2.0; 
                 const localTime = state.time % cycleDuration;
                 let osc = 0;
 
                 if (localTime > pauseDuration) {
-                    // Tempo ativo (após a pausa)
                     const activeTime = localTime - pauseDuration;
                     const activeDuration = cycleDuration - pauseDuration;
-                    // Mapeia o tempo ativo para 0 a PI (meio ciclo de seno) para ir de 0 -> 1 -> 0
                     osc = Math.sin((activeTime / activeDuration) * Math.PI);
                 } else {
-                    // Tempo de pausa
                     osc = 0;
                 }
 
@@ -1468,8 +1687,26 @@
                 if (camera.position.distanceTo(targetCamPos) < 1.0) {
                     state.introFinished = true;
                     controls.enabled = true; 
-                    toggleHud(true); 
-                    setTimeout(() => presavePopup.classList.add('visible'), 500);
+                    
+                    // Responsive Initial State
+                    if (window.innerWidth > 768) {
+                        toggleHud(true); // Desktop: Open HUD
+                    } else {
+                        toggleHud(false); // Mobile: Keep HUD closed to show Pre-save cleanly
+                    }
+                    
+                    // Exibe Pre-save com delay se estiver no Desktop ou se HUD estiver fechado
+                    if (hud.classList.contains('collapsed')) {
+                         setTimeout(() => presavePopup.classList.add('visible'), 500);
+                    } else {
+                         // Se HUD abriu (Desktop), garante que o pre-save apareça também
+                         setTimeout(() => presavePopup.classList.add('visible'), 500);
+                    }
+                    
+                    // Show Tooltip after intro ONLY IF NOT INTERACTED
+                    if (!state.cameraInteracted) {
+                        camTooltip.style.opacity = '1';
+                    }
                     log("SISTEMA ONLINE");
                 }
             }
@@ -1479,24 +1716,38 @@
                 const stretch = state.stretch;
                 const baseScale = 0.025;
                 
-                // Alongamento Surreal (Y aumenta, X/Z diminuem para manter "volume" bizarro)
                 const scaleY = baseScale * (1 + stretch * 3.0);
-                const scaleXZ = baseScale * (1 - stretch * 0.4); // Thinning effect
+                const scaleXZ = baseScale * (1 - stretch * 0.4); 
                 
                 horseModel.scale.set(scaleXZ, scaleY, scaleXZ);
                 
-                // Wireframe Sync (Without Expansion)
                 if(wireModel) {
                     wireModel.scale.set(scaleXZ, scaleY, scaleXZ);
                 }
+
+                // Update Camera Tooltip Position
+                if (camAnchor && state.introFinished) {
+                    camAnchor.getWorldPosition(tempV);
+                    tempV.project(camera);
+
+                    const x = (tempV.x * .5 + .5) * canvasContainer.clientWidth;
+                    const y = (tempV.y * -.5 + .5) * canvasContainer.clientHeight;
+
+                    if (Math.abs(tempV.z) > 1 || x < 0 || x > canvasContainer.clientWidth || y < 0 || y > canvasContainer.clientHeight) {
+                        camTooltip.style.display = 'none';
+                    } else {
+                        camTooltip.style.display = 'flex';
+                        camTooltip.style.left = `${x}px`;
+                        camTooltip.style.top = `${y}px`;
+                    }
+                }
             }
 
-            // Mover Pedras (Ajuste para sincronia com animação)
+            // Mover Pedras
             desertGroup.position.x -= (state.speed / 80); 
-            if (desertGroup.position.x < -600) desertGroup.position.x = 0; // Loop mais longo
+            if (desertGroup.position.x < -600) desertGroup.position.x = 0; 
 
-            // Mover Grid do Chão (Infinito)
-            // Tamanho da célula = 2000 / 100 = 20
+            // Mover Grid
             const cellSize = 20;
             groundWire.position.x = (desertGroup.position.x % cellSize);
 
