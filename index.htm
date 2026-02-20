@@ -7,12 +7,22 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
+        :root {
+            --primary-color: #dcb386;
+            --bg-color: #150d05;
+            /* Estas variaveis agora serao atualizadas via JS para acompanhar a cor */
+            --secondary-color: rgba(220, 179, 134, 0.3);
+            --text-shadow: rgba(220, 179, 134, 0.8);
+        }
+
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #150d05;
+            background-color: var(--bg-color);
             font-family: 'VT323', monospace;
             user-select: none;
+            /* Transição suave para simular gradiente temporal */
+            transition: background-color 1.5s cubic-bezier(0.4, 0.0, 0.2, 1), color 0.5s ease;
         }
 
         #canvas-container {
@@ -43,11 +53,12 @@
 
         .logo {
             font-size: 32px;
-            color: #dcb386;
+            color: var(--primary-color);
             text-transform: uppercase;
             letter-spacing: 4px;
-            text-shadow: 0 0 15px rgba(220, 179, 134, 0.8); 
+            text-shadow: 0 0 15px var(--text-shadow); 
             cursor: pointer;
+            transition: color 0.5s, text-shadow 0.5s;
         }
 
         .nav-links {
@@ -57,7 +68,7 @@
         }
 
         .nav-item {
-            color: #dcb386;
+            color: var(--primary-color);
             text-decoration: none;
             font-size: 22px;
             text-transform: uppercase;
@@ -71,7 +82,7 @@
 
         .nav-item:hover, .nav-item.active {
             opacity: 1;
-            text-shadow: 0 0 15px #dcb386;
+            text-shadow: 0 0 15px var(--primary-color);
             background: transparent; 
         }
 
@@ -82,8 +93,9 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: #dcb386;
-            box-shadow: 0 0 10px #dcb386;
+            background: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            transition: background 0.5s, box-shadow 0.5s;
         }
 
         .nav-item.disabled {
@@ -93,7 +105,7 @@
 
         .nav-item.disabled:hover {
             opacity: 1;
-            text-shadow: 0 0 5px #dcb386;
+            text-shadow: 0 0 5px var(--primary-color);
         }
 
         .nav-item.disabled:hover span {
@@ -107,10 +119,10 @@
         /* --- FOOTER DESKTOP --- */
         .desktop-footer {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             right: 40px;
             text-align: right; 
-            color: #dcb386;
+            color: var(--primary-color);
             font-family: 'VT323', monospace;
             font-size: 10px; 
             letter-spacing: 1px;
@@ -119,10 +131,11 @@
             z-index: 20;
             pointer-events: none; 
             text-shadow: 0 0 2px rgba(0,0,0,0.5);
+            transition: color 0.5s;
         }
 
         .desktop-footer a {
-            color: #dcb386;
+            color: var(--primary-color);
             text-decoration: none;
             pointer-events: auto; 
             transition: opacity 0.3s;
@@ -131,7 +144,7 @@
         .desktop-footer a:hover {
             opacity: 1;
             text-decoration: none; 
-            text-shadow: 0 0 5px #dcb386;
+            text-shadow: 0 0 5px var(--primary-color);
         }
 
         /* Elementos Mobile (Ocultos por padrão no Desktop) */
@@ -157,8 +170,8 @@
         .mobile-open-btn {
             display: none;
             background: none;
-            border: 1px solid #dcb386;
-            color: #dcb386;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             font-family: 'VT323', monospace;
             font-size: 20px;
             padding: 5px 15px;
@@ -179,10 +192,11 @@
         .cam-marker {
             width: 8px;
             height: 8px;
-            background: #dcb386;
+            background: var(--primary-color);
             border-radius: 50%;
-            box-shadow: 0 0 10px #dcb386;
+            box-shadow: 0 0 10px var(--primary-color);
             position: relative;
+            transition: background 0.5s, box-shadow 0.5s;
         }
 
         .cam-line {
@@ -191,9 +205,10 @@
             left: 4px;
             width: 60px;
             height: 1px;
-            background: #dcb386;
+            background: var(--primary-color);
             transform-origin: 0 0;
             transform: rotate(-45deg);
+            transition: background 0.5s;
         }
 
         .cam-content {
@@ -201,28 +216,33 @@
             top: -50px;
             left: 50px;
             background: rgba(20, 10, 5, 0.8);
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             padding: 5px 10px;
-            color: #dcb386;
+            color: var(--primary-color);
             font-size: 14px;
             white-space: nowrap;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(220, 179, 134, 0.2);
+            box-shadow: 0 0 10px var(--secondary-color);
+            transition: all 0.5s;
         }
 
         /* --- SECÇÕES DE CONTEÚDO --- */
         .page-section {
             position: absolute;
-            top: 60px;
+            top: 0; /* Agora cobre o topo */
             left: 0;
             width: 100%;
-            height: calc(100vh - 60px);
+            height: 100vh; /* Altura total da tela */
             z-index: 250;
             display: none;
             overflow-y: auto;
-            background: rgba(21, 13, 5, 0.85);
-            backdrop-filter: blur(5px);
-            padding: 40px;
+            
+            /* Fundo Sólido MARROM (Fixo) para cobrir a experiência, independente do tema */
+            background-color: rgba(21, 13, 5, 0.95); 
+            
+            /* Padding maior no topo para não ficar atrás do menu */
+            padding: 100px 40px 40px 40px; 
+            
             box-sizing: border-box;
             opacity: 0;
             transition: opacity 0.5s;
@@ -234,27 +254,29 @@
         }
 
         h1.section-title {
-            color: #dcb386;
+            color: var(--primary-color);
             font-size: 48px;
-            border-bottom: 2px dashed #dcb386;
+            border-bottom: 2px dashed var(--primary-color);
             padding-bottom: 10px;
             margin-bottom: 40px;
             text-align: center;
             letter-spacing: 5px;
+            transition: color 0.5s, border-color 0.5s;
         }
 
         /* Fotos */
         .photo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            padding-bottom: 40px;
         }
 
         .photo-card {
             background: #000;
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
@@ -263,14 +285,108 @@
             font-size: 24px;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s;
+            transition: transform 0.3s, border-color 0.5s;
+            cursor: zoom-in;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
         }
 
         .photo-card:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 15px #dcb386;
-            color: #dcb386;
+            box-shadow: 0 0 15px var(--primary-color);
+            color: var(--primary-color);
         }
+
+        /* Lightbox Styles */
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: default;
+        }
+
+        #lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #lightbox-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 30px var(--secondary-color);
+        }
+
+        #lightbox-caption {
+            margin-top: 15px;
+            color: var(--primary-color);
+            font-size: 18px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 15px;
+            border: 1px dashed var(--primary-color);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            font-size: 30px;
+            padding: 10px 15px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s;
+        }
+
+        .lightbox-nav:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        .lightbox-nav.prev { left: 20px; }
+        .lightbox-nav.next { right: 20px; }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 1002;
+        }
+        
+        .lightbox-close:hover { color: #ff4400; }
 
         /* Links */
         .links-container {
@@ -285,8 +401,8 @@
         .link-item {
             width: 100%;
             padding: 20px;
-            border: 2px solid #dcb386;
-            color: #dcb386;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
             text-decoration: none;
             font-size: 24px;
             text-align: center;
@@ -296,11 +412,78 @@
         }
 
         .link-item:hover {
-            background: #dcb386;
-            color: #150d05;
-            box-shadow: 0 0 20px #dcb386;
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--primary-color);
             letter-spacing: 2px;
         }
+
+        /* Letras (Lyrics) Styles */
+        .lyrics-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 40px;
+        }
+
+        .song-block {
+            border: 1px solid var(--secondary-color);
+            background: rgba(0,0,0,0.4);
+            margin-bottom: 5px;
+        }
+
+        .song-block summary {
+            padding: 15px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 24px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .song-block summary:hover {
+            background: var(--secondary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .song-block summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .song-block summary::after {
+            content: '+';
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .song-block[open] summary {
+            border-bottom: 1px dashed var(--secondary-color);
+            background: rgba(220, 179, 134, 0.05);
+        }
+
+        .song-block[open] summary::after {
+            content: '-';
+        }
+
+        .song-lyrics {
+            padding: 20px;
+            color: var(--primary-color);
+            font-size: 18px;
+            line-height: 1.6;
+            white-space: pre-line; 
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .song-lyrics p { margin: 0; }
+
 
         /* --- EFEITOS DE ECRÃ --- */
         .dither-overlay {
@@ -327,22 +510,22 @@
             background: radial-gradient(circle, transparent 40%, rgba(10, 5, 0, 0.95) 100%);
         }
 
-        /* --- POPUP PRE-SAVE --- */
+        /* --- POPUP DE LANÇAMENTO --- */
         #presave-popup {
             position: absolute;
             bottom: 30px;
             left: 30px;
-            width: 220px;
+            width: 240px; 
             background: rgba(20, 10, 5, 0.9);
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             padding: 20px;
             z-index: 150;
-            box-shadow: 0 0 20px rgba(220, 179, 134, 0.15);
-            color: #dcb386;
+            box-shadow: 0 0 20px var(--secondary-color);
+            color: var(--primary-color);
             font-family: 'VT323', monospace;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.5s, transform 0.5s;
+            transition: opacity 0.5s, transform 0.5s, border-color 0.5s;
             pointer-events: none;
         }
 
@@ -352,21 +535,22 @@
             pointer-events: auto;
         }
 
-        /* Letreiro PRE-SAVE */
+        /* Badge NO AR */
         .presave-sign-badge {
             position: absolute;
             top: -15px;
             right: -10px;
-            background: #dcb386;
-            color: #150d05;
+            background: var(--primary-color);
+            color: var(--bg-color);
             padding: 4px 10px;
             font-size: 16px;
             font-weight: bold;
             transform: rotate(5deg);
-            box-shadow: 0 0 15px #dcb386;
-            border: 1px solid #150d05;
+            box-shadow: 0 0 15px var(--primary-color);
+            border: 1px solid var(--bg-color);
             z-index: 10;
             animation: flicker-sign 2s infinite alternate;
+            transition: background 0.5s;
         }
 
         @keyframes flicker-sign {
@@ -381,7 +565,7 @@
         .presave-title {
             font-size: 20px;
             text-transform: uppercase;
-            border-bottom: 1px dashed #dcb386;
+            border-bottom: 1px dashed var(--primary-color);
             padding-bottom: 5px;
             margin-bottom: 10px;
             letter-spacing: 1px;
@@ -399,28 +583,149 @@
             display: block;
             width: 100%;
             padding: 10px;
-            background: #dcb386;
-            color: #150d05;
+            background: var(--primary-color);
+            color: var(--bg-color);
             text-align: center;
             text-decoration: none;
             text-transform: uppercase;
             font-weight: bold;
             font-size: 18px;
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             transition: all 0.3s;
             box-sizing: border-box;
+            margin-bottom: 10px; 
+        }
+
+        .presave-btn:last-child {
+            margin-bottom: 0;
         }
 
         .presave-btn:hover {
-            background: #150d05;
-            color: #dcb386;
-            box-shadow: 0 0 10px #dcb386;
+            background: var(--bg-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
         }
 
         @keyframes blink-text {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+
+        /* --- RADIO DIAL (INTEGRATED IN HUD) --- */
+        .track-control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .dial-label {
+            color: var(--primary-color);
+            font-size: 16px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .arrow-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            cursor: pointer;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            padding: 2px 8px;
+            transition: all 0.2s;
+        }
+
+        .arrow-btn:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        #track-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            min-height: 20px;
+            text-align: center;
+            flex-grow: 1;
+            padding: 0 5px;
+        }
+
+        /* Dial Input Reset */
+        input[type=range].dial-range {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 0;
+        }
+
+        input[type=range].dial-range:focus {
+            outline: none;
+        }
+
+        /* Dial Track (Reto) */
+        input[type=range].dial-range::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 0; /* Straight edges */
+        }
+
+        /* Dial Thumb (Reto) */
+        input[type=range].dial-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 12px;
+            border: 1px solid var(--bg-color);
+            background: var(--primary-color);
+            cursor: pointer;
+            margin-top: -10px; /* Align center */
+            box-shadow: 0 0 10px var(--primary-color);
+            border-radius: 0; /* Straight edges */
+        }
+
+        /* Firefox Support for Straight Edges */
+        input[type=range].dial-range::-moz-range-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 0;
+        }
+
+        input[type=range].dial-range::-moz-range-thumb {
+            height: 24px;
+            width: 12px;
+            border: 1px solid var(--bg-color);
+            background: var(--primary-color);
+            cursor: pointer;
+            border-radius: 0;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        /* Dial Numbers */
+        .dial-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 0 2px; /* Alinhar com o centro do thumb nas pontas */
+        }
+
+        .dial-num {
+            color: var(--primary-color);
+            font-size: 12px;
+            width: 10px; /* Largura fixa para alinhar */
+            text-align: center;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        
+        .dial-num:hover { opacity: 1; font-weight: bold; }
 
         /* --- HUD --- */
         #hud {
@@ -431,14 +736,14 @@
             max-height: 85vh;
             overflow-y: auto;
             background: rgba(20, 10, 5, 0.9);
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             padding: 15px;
-            color: #dcb386;
+            color: var(--primary-color);
             z-index: 100;
-            box-shadow: 0 0 15px rgba(220, 179, 134, 0.1);
+            box-shadow: 0 0 15px var(--secondary-color);
             backdrop-filter: blur(4px);
             scrollbar-width: thin;
-            scrollbar-color: #dcb386 #150d05;
+            scrollbar-color: var(--primary-color) #150d05;
             
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
             transform: translateX(0);
@@ -456,15 +761,15 @@
             top: 80px;
             right: 20px;
             background: rgba(20, 10, 5, 0.8);
-            border: 1px solid #dcb386;
-            color: #dcb386;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             padding: 10px 15px;
             font-family: 'VT323', monospace;
             font-size: 18px;
             cursor: pointer;
             z-index: 99;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(220, 179, 134, 0.2);
+            box-shadow: 0 0 10px var(--secondary-color);
             transition: opacity 0.3s;
             opacity: 0;
             pointer-events: none;
@@ -479,7 +784,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px dashed #dcb386;
+            border-bottom: 1px dashed var(--primary-color);
             padding-bottom: 5px;
             margin-bottom: 15px;
         }
@@ -494,7 +799,7 @@
         .close-btn {
             background: none;
             border: none;
-            color: #dcb386;
+            color: var(--primary-color);
             font-size: 20px;
             cursor: pointer;
             padding: 0 5px;
@@ -503,7 +808,7 @@
 
         .control-group {
             margin-bottom: 18px;
-            border-bottom: 1px dotted rgba(220, 179, 134, 0.3);
+            border-bottom: 1px dotted var(--secondary-color);
             padding-bottom: 10px;
         }
         .control-group:last-child { border-bottom: none; }
@@ -518,7 +823,7 @@
 
         input[type="range"] {
             width: 100%;
-            accent-color: #dcb386;
+            accent-color: var(--primary-color);
             cursor: pointer;
             background: rgba(0,0,0,0.5);
             height: 4px;
@@ -530,7 +835,7 @@
             appearance: none;
             width: 12px;
             height: 12px;
-            background: #dcb386;
+            background: var(--primary-color);
             cursor: pointer;
             border-radius: 0;
         }
@@ -538,8 +843,8 @@
         button.control-btn {
             width: 100%;
             background: rgba(0,0,0,0.3);
-            border: 1px solid #dcb386;
-            color: #dcb386;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             padding: 8px;
             font-family: 'VT323', monospace;
             font-size: 18px;
@@ -549,15 +854,15 @@
         }
 
         button.control-btn:hover {
-            background: #dcb386;
-            color: #150d05;
-            box-shadow: 0 0 10px #dcb386;
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--primary-color);
         }
 
         button.control-btn.active {
-            background: #dcb386;
-            color: #150d05;
-            box-shadow: 0 0 5px #dcb386 inset;
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 5px var(--primary-color) inset;
         }
 
         .data-stream {
@@ -566,7 +871,7 @@
             margin-top: 10px;
             height: 60px;
             overflow: hidden;
-            border: 1px solid #dcb386;
+            border: 1px solid var(--primary-color);
             padding: 5px;
             background: rgba(0,0,0,0.5);
             font-family: monospace;
@@ -688,6 +993,12 @@
                 display: none;
             }
 
+            /* Posicionamento do Dial no Mobile (Inferior) */
+            #radio-dial-wrapper {
+                bottom: 20px;
+                width: 90%;
+            }
+
             /* ESTADO ABERTO DO MENU MOBILE */
             nav.mobile-open {
                 height: 100vh; /* Ocupa tela toda */
@@ -717,9 +1028,7 @@
             }
             
             .page-section {
-                top: 80px; 
-                height: calc(100vh - 80px);
-                padding: 20px;
+                padding: 100px 20px 20px 20px;
             }
             
             h1.section-title {
@@ -750,10 +1059,11 @@
                 padding: 5px 10px;
             }
 
-            /* Centralizar Popup de Pre-save no mobile */
+            /* Centralizar Popup de LANÇAMENTO no mobile (POSIÇÃO INFERIOR) */
             #presave-popup {
                 left: 50%;
-                bottom: 20px;
+                top: auto; /* Remove posicionamento superior */
+                bottom: 30px; /* Volta para a parte inferior */
                 width: 85%;
                 margin: 0;
                 transform: translateX(-50%); 
@@ -798,8 +1108,8 @@
             <a class="nav-item active" data-target="home">HOME</a>
             <a class="nav-item" data-target="fotos">FOTOS</a>
             <a class="nav-item" data-target="links">LINKS</a>
-            <a class="nav-item disabled" data-target="letras"><span>LETRAS</span></a>
-            <a class="nav-item" href="https://tratore.ffm.to/dzrthrs3s1" target="_blank">PRE-SAVE</a>
+            <a class="nav-item" data-target="letras">LETRAS</a>
+            <a class="nav-item" href="http://tratore.ffm.to/dzrthrs3" target="_blank">OUÇA AGORA</a>
         </div>
     </nav>
 
@@ -816,17 +1126,20 @@
     <div class="dither-overlay"></div>
     <div class="vignette"></div>
 
-    <!-- POPUP PRE-SAVE (Home Only) -->
+    <!-- POPUP LANÇAMENTO (Home Only) -->
     <div id="presave-popup">
-        <div class="presave-sign-badge">PRE-SAVE</div>
-        <div class="presave-title">NOVA TRANSMISSÃO</div>
+        <div class="presave-sign-badge">NO AR</div>
+        <div class="presave-title">ÁLBUM DISPONÍVEL!</div>
         <div class="presave-desc">
             ARTISTA: DEZERT HORSE<br>
-            FAIXA: NEM QUERIA VER O FIM<br>
-            FAÇA O PRE-SAVE AGORA
+            ÁLBUM COMPLETO<br>
+            OUÇA EM TODAS AS PLATAFORMAS
         </div>
-        <a href="https://tratore.ffm.to/dzrthrs3s1" target="_blank" class="presave-btn">
-            ACESSAR LINK
+        <a href="http://tratore.ffm.to/dzrthrs3" target="_blank" class="presave-btn">
+            OUÇA AGORA
+        </a>
+        <a href="https://www.youtube.com/@dezerthorse" target="_blank" class="presave-btn">
+            ASSISTIR CLIPE
         </a>
     </div>
 
@@ -838,33 +1151,338 @@
     <!-- SEÇÃO FOTOS -->
     <div id="section-fotos" class="page-section">
         <h1 class="section-title">ARQUIVOS VISUAIS</h1>
-        <div class="photo-grid">
-            <div class="photo-card">IMG_001.RAW</div>
-            <div class="photo-card">IMG_002.RAW</div>
-            <div class="photo-card">IMG_003.RAW</div>
-            <div class="photo-card">IMG_004.RAW</div>
-            <div class="photo-card">IMG_005.RAW</div>
-            <div class="photo-card">IMG_006.RAW</div>
+        <div class="photo-grid" id="photo-grid-container">
+            <!-- Photos will be injected here by JS -->
         </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <button class="lightbox-nav prev" onclick="changeSlide(-1)">&#10094;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Full Screen Image">
+            <div id="lightbox-caption"></div>
+        </div>
+        <button class="lightbox-nav next" onclick="changeSlide(1)">&#10095;</button>
     </div>
 
     <!-- SEÇÃO LINKS -->
     <div id="section-links" class="page-section">
         <h1 class="section-title">CONEXÕES DE REDE</h1>
         <div class="links-container">
-            <a href="#" class="link-item">SPOTIFY</a>
-            <a href="#" class="link-item">INSTAGRAM</a>
-            <a href="#" class="link-item">APPLE MUSIC</a>
-            <a href="#" class="link-item">YOUTUBE</a>
-            <a href="#" class="link-item">CONTATO</a>
+            <a href="https://open.spotify.com/intl-pt/artist/1a03S9PeaoDA6rGJgUJRFD?si=ZuTI7I0OTIyWfxw92DcYqg" target="_blank" class="link-item">SPOTIFY</a>
+            <a href="https://music.apple.com/br/artist/dezert-horse/1517299181?l=en-GB" target="_blank" class="link-item">APPLE MUSIC</a>
+            <a href="https://www.youtube.com/@dezerthorse" target="_blank" class="link-item">YOUTUBE</a>
+            <a href="http://dezerthorse1.bandcamp.com/album/dezert-horse" target="_blank" class="link-item">BANDCAMP</a>
+            <a href="https://www.instagram.com/dezerthorse" target="_blank" class="link-item">INSTAGRAM</a>
+            <a href="https://www.threads.com/@dezerthorse" target="_blank" class="link-item">THREADS</a>
+            <a href="mailto:dezerthorse@gmail.com" class="link-item">CONTATO</a>
+        </div>
+    </div>
+
+    <!-- SEÇÃO LETRAS -->
+    <div id="section-letras" class="page-section">
+        <h1 class="section-title">ARQUIVOS DE TEXTO</h1>
+        <div class="lyrics-container">
+            
+            <details class="song-block">
+                <summary>01 EU PENSO NO TEMPO</summary>
+                <div class="song-lyrics">
+                    tempo eu penso no tempo e ele nem vem mais
+                    ora, não passam as horas e olham pra trás
+                    tento, mas nem vejo o tempo quando ele passa
+                    e se um dia eu acordar e não te ver lá?
+                    
+                    agoniado, às vezes penso no passado
+                    eu lembro o que eu pensava de mim mesmo
+                    e cada vez eu vejo, mais longe do desejo
+                    incerto de tudo
+                    
+                    tanto tento, que passa o tempo, nem vejo
+                    adeus criança do passado, um beijo
+                    eu nunca vou voltar, talvez eu preciso respirar.
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>02 ONTEM FT GANWALK</summary>
+                <div class="song-lyrics">
+                    ontem eu pensava que o tempo não ia passar
+                    que cada momento era eterno, mil segundos pelo ar
+                    penso o quanto me fez bem, mas não quero entender
+                    longe de onde hoje, sei que tenho
+                    o que eu vi acontecer
+                    
+                    uma noite, um momento, um sinal
+                    não podiam me fazer mal
+                    quanto tempo eu levo pra esquecer
+                    de você?
+                    
+                    ontem eu pensava até no que eu fiz pra me esquecer
+                    tudo que eu acho que eu já vi, eu nem comecei a ver
+                    lembro tanto de você, sei que nem pensa em mim
+                    e mesmo se eu falasse o que eu penso
+                    não mudaria meu fim
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>03 AMANHÃ FT CARABOBINA</summary>
+                <div class="song-lyrics">
+                    me entregue al sentimiento
+                    que todo va a pasar
+                    pero mi discernimiento me alerto que no da pra controlar
+                    mucho menos esperar
+                    porque mientras esperamos, todo todo sale del lugar
+                    
+                    o amanhã vai passar
+                    não vou ver nem lembrar
+                    se é que um dia eu vi
+                    já nem sei onde vai dar
+                    
+                    aprender é
+                    deixar pro destino, eu vou
+                    além
+                    desistir é
+                    nojo que sinto, eu sei
+                    não faz bem
+                    
+                    tudo passa
+                    todo mundo morre e eu sei
+                    vou também
+                    tudo passa
+                    vou também
+                    
+                    o amanhã vai passar
+                    não vou ver nem lembrar
+                    se é que um dia eu vi
+                    já nem sei onde vai dar
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>04 NEM QUERIA VER O FIM</summary>
+                <div class="song-lyrics">
+                    de novo aqui
+                    olha como o tempo passa
+                    nem sei começar
+                    planos são
+                    incerteza e ilusão
+                    e eu nem posso reclamar de nada
+                    
+                    como eu nem queria ver o fim
+                    e ver que dentro de mim tem nada
+                    de novo aqui
+                    olha como o mundo muda
+                    eu nem sei falar
+                    como eu nem queria ver o fim
+                    e ver que dentro de mim tem água
+                    
+                    planos são
+                    incerteza e ilusão
+                    e eu nem posso reclamar de nada
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>05 IF ONLY I KNEW</summary>
+                <div class="song-lyrics">
+                    if only i knew
+                    if i could read your mind
+                    turn back time
+                    if only time could pass
+                    i never know the time
+                    waves crashing in your eyes
+                    i only found a way
+                    if only i knew
+                    fine
+                    i'll just be alright
+                    
+                    if all the stars were bright
+                    gazing at the sky
+                    clouds, phasing through your eyes
+                    i only found a way
+                    if only i knew
+                    fine
+                    i'll just be alright
+                    
+                    if all the walls could fall
+                    no it is not your fault
+                    time travels in my mind
+                    and i
+                    i only found a way
+                    if only i knew
+                    fine
+                    i'll just be alright
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>06 I'M ONTO BIGGER THINGS</summary>
+                <div class="song-lyrics">
+                    I'm onto bigger things
+                    You would not even know how delusional I am
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>07 RUFIÃO (RAPHAEL VAZ)</summary>
+                <div class="song-lyrics">
+                    se a luz ofuscar
+                    é que os olhos querem
+                    nos montes de Vênus
+                    cores escurecem
+                    e hoje amarelou
+                    tanto tempo atoa
+                    vai demorar
+                    outra festa boa
+                    
+                    e a saudade quente
+                    mora na memória
+                    sem desmanchar
+                    monta outra história
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>08 SILÊNCIO CÓSMICO</summary>
+                <div class="song-lyrics">
+                    nao tem por que
+                    falar
+                    se me ouvissem
+                    silêncio cósmico
+                    
+                    nao tem por que
+                    chorar
+                    por que eu não sinto
+                    tristeza sólida
+                    
+                    nao tem por que
+                    correr
+                    se seu destino é
+                    piscar de olhos
+                    
+                    nao tem por que
+                    falar
+                    se me ouvissem
+                    silêncio cósmico
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>09 ATÉ ONDE?</summary>
+                <div class="song-lyrics">
+                    de tanto falar pra escutar
+                    em meu ouvido só silêncio
+                    me fala até onde isso quer chegar?
+                    até onde esse barco vai?
+                    
+                    num mar vazio eterno como o céu
+                    de longe eu vejo um vendaval
+                    de tanto esperar isso passar
+                    por dentro eu entendo que não importa aonde isso tudo vai chegar
+                    
+                    me diz onde esconder
+                    ou talvez eu possa ficar
+                    me diz como entender
+                    todas voltas que o mundo dá
+                    
+                    e eu queria poder falar
+                    mas nem é cedo ainda
+                    talvez eu deva acordar
+                    sonhei vivo demais
+                    
+                    é tão estranho sentir
+                    não tem pra que fingir
+                    nem queria falar
+                    só queria te ouvir
+                    
+                    é estranho eu dizer
+                    que eu vim só pra te ver?
+                    mesmo estando aqui
+                    antes de você
+                    e sem saber
+                    
+                    e pra falar a real
+                    sem ser nada poético
+                    mas o que bateu nem foi o...
+                    sentido ao novo
+                    eu não aguento ouvir merda
+                    e eu fico sem graça de falar na sua cara
+                    
+                    eu já nem sei
+                    Quem sou eu
+                    quem é você?
+                    isso nem faz mal
+                    se eu não
+                    vai doer
+                </div>
+            </details>
+
+            <details class="song-block">
+                <summary>10 REALMENTE ÓBVIO</summary>
+                <div class="song-lyrics">
+                    e esse vento lá fora
+                    me fez vir embora
+                    já faz um tempo que eu lembro
+                    de coisas vivas ao sonhar
+                    
+                    eu queria você
+                    é difícil me ver?
+                    não basta essa poeira
+                    eu só penso em você!
+                    
+                    eu queria te ver
+                    é difícil ser?
+                    se souber não tem volta
+                    às vezes tento te mostrar
+                    mas é meio óbvio
+                    realmente óbvio
+                    
+                    and these feelings about you
+                    I'll have to find a way to go on without them
+                    it only makes it harder
+                    so I'll push it over far
+                    'till it won't remind me that
+                    I'll have to find a way
+                    it only makes it harder
+                    so I'll have to find a way
+                    without you
+                </div>
+            </details>
+
         </div>
     </div>
 
     <!-- HUD INTERATIVO (Home Only) -->
     <div id="hud" class="collapsed">
         <div class="hud-header">
-            <h2>Painel de Controlo</h2>
+            <h2>Painel de Controle</h2>
             <button class="close-btn" id="close-hud-btn">×</button>
+        </div>
+
+        <!-- INTEGRATED DIAL IN HUD -->
+        <div class="control-group">
+            <div class="dial-label">FREQUÊNCIA</div>
+            <div class="track-control-row">
+                <button class="arrow-btn" onclick="window.adjustTrack(-1)">&#9664;</button>
+                <div id="track-name">01 EU PENSO NO TEMPO</div>
+                <button class="arrow-btn" onclick="window.adjustTrack(1)">&#9654;</button>
+            </div>
+            <input type="range" id="radio-dial" class="dial-range" min="0" max="9" value="0" step="1">
+            <div class="dial-numbers" style="margin-top: 5px;">
+                <span class="dial-num" onclick="changeTrack(0)">01</span>
+                <span class="dial-num" onclick="changeTrack(1)">02</span>
+                <span class="dial-num" onclick="changeTrack(2)">03</span>
+                <span class="dial-num" onclick="changeTrack(3)">04</span>
+                <span class="dial-num" onclick="changeTrack(4)">05</span>
+                <span class="dial-num" onclick="changeTrack(5)">06</span>
+                <span class="dial-num" onclick="changeTrack(6)">07</span>
+                <span class="dial-num" onclick="changeTrack(7)">08</span>
+                <span class="dial-num" onclick="changeTrack(8)">09</span>
+                <span class="dial-num" onclick="changeTrack(9)">10</span>
+            </div>
         </div>
         
         <div class="control-group">
@@ -888,7 +1506,7 @@
         </div>
 
         <div class="control-group">
-            <button id="ghost-btn" class="control-btn">MODO ESPECTRO [OFF]</button>
+            <button id="ghost-btn" class="control-btn active">MODO ESPECTRO [ON]</button>
         </div>
 
         <div class="data-stream" id="console-log">
@@ -916,15 +1534,92 @@
             speed: 32,
             baseSpeed: 32,
             stretch: 0, 
-            ghostMode: false, 
+            ghostMode: true, // Default to true
             structure: 0.0, // Wireframe Opacity & Expansion
             structureInteracted: false,
             cameraInteracted: false, // Flag para controle da tooltip
             time: 0,
             loaded: false,
             introFinished: false,
-            modelReady: false
+            modelReady: false,
+            currentTrackIndex: 0,
+            loopCount: 0, // New state for looping logic
+            userInteracted: false // New state for user interaction check
         };
+
+        // --- TRACK LIST ---
+        const tracks = [
+            // 1. Dourado (Original / Areia)
+            { id: 0, title: "01 EU PENSO NO TEMPO", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/1%20EU%20PENSO%20NO%20LOOP.mp3", theme: "#dcb386" }, 
+            
+            // 2. Amarelo Ouro
+            { id: 1, title: "02 ONTEM", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/02%20ontem%20loop.mp3", theme: "#ffd700" }, 
+            
+            // 3. Verde Lima
+            { id: 2, title: "03 AMANHÃ", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/03%20amanha%20loop.mp3", theme: "#aacc00" }, 
+            
+            // 4. Verde Sálvia (Suave)
+            { id: 3, title: "04 NEM QUERIA VER O FIM", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/04%20nem%20querria%20ver%20o%20loop.mp3", theme: "#81b29a" }, 
+            
+            // 5. Ciano
+            { id: 4, title: "05 IF ONLY I KNEW", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/05%20if%20only%20i%20loop.mp3", theme: "#48cae4" }, 
+            
+            // 6. Azul Real
+            { id: 5, title: "06 I'M ONTO BIGGER THINGS", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/06%20im%20onto%20bigger%20loops.mp3", theme: "#4a90e2" }, 
+            
+            // 7. Roxo
+            { id: 6, title: "07 RUFIÃO", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/07%20rufiao%20loop.mp3", theme: "#9b59b6" }, 
+            
+            // 8. Rosa Vibrante
+            { id: 7, title: "08 SILÊNCIO CÓSMICO", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/08%20loop%20cosmico.mp3", theme: "#e91e63" }, 
+            
+            // 9. Vermelho Intenso
+            { id: 8, title: "09 ATÉ ONDE?", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/09%20ate%20loop.mp3", theme: "#d00000" }, 
+            
+            // 10. Laranja Vibrante (Fecha o ciclo voltando para tons de terra)
+            { id: 9, title: "10 REALMENTE ÓBVIO", url: "https://raw.githubusercontent.com/DezertHorse/cavalo/main/REALMENTE%20OBVIO%20loop.mp3", theme: "#ff6600" } 
+        ];
+
+        // --- Gallery Data ---
+        const galleryImages = [
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/2%20-%20Saturar%20(1).jpg', credit: 'Foto por Caeu Santo e Isabela Izarias' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_cavalo.JPG', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6276.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6249.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6251.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6253.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6256.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6258%202.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6260.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6263%202.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6265%202.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6267.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6271.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6273.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6276.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6277.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6278.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6280.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6281.jpg', credit: 'Foto por Caeu Santo' },
+            { url: 'https://raw.githubusercontent.com/DezertHorse/cavalo/main/IMG_6283.jpg', credit: 'Foto por Caeu Santo' }
+        ];
+
+        // Populate Gallery
+        const photoGridContainer = document.getElementById('photo-grid-container');
+        galleryImages.forEach((imgData, index) => {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            card.setAttribute('data-index', index);
+            card.setAttribute('data-credit', imgData.credit);
+            card.onclick = function() { openLightbox(this); };
+            
+            const img = document.createElement('img');
+            img.src = imgData.url;
+            img.alt = `Gallery Image ${index + 1}`;
+            
+            card.appendChild(img);
+            photoGridContainer.appendChild(card);
+        });
 
         // --- DOM Elements ---
         const loadingScreen = document.getElementById('loading-screen');
@@ -940,6 +1635,16 @@
         const canvasContainer = document.getElementById('canvas-container');
         const presavePopup = document.getElementById('presave-popup');
         const camTooltip = document.getElementById('cam-tooltip');
+        const radioDial = document.getElementById('radio-dial');
+        const trackNameDisplay = document.getElementById('track-name');
+
+        // Controls Elements
+        const speedSlider = document.getElementById('speed-slider');
+        const structureSlider = document.getElementById('structure-slider'); 
+        const stretchSlider = document.getElementById('stretch-slider'); 
+        const fovSlider = document.getElementById('fov-slider');
+        const ghostBtn = document.getElementById('ghost-btn');
+        const speedVal = document.getElementById('speed-val');
 
         // Navigation Elements
         const nav = document.getElementById('main-nav');
@@ -947,6 +1652,42 @@
         const sections = document.querySelectorAll('.page-section');
         const mobileOpenBtn = document.getElementById('mobile-open-btn');
         const mobileCloseBtn = document.getElementById('mobile-close-btn');
+
+        // Lightbox Logic
+        let currentLightboxIndex = 0;
+
+        window.openLightbox = function(card) {
+            const index = parseInt(card.getAttribute('data-index'));
+            currentLightboxIndex = index;
+            updateLightboxContent();
+            
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.add('active');
+        };
+
+        window.closeLightbox = function() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        };
+
+        window.changeSlide = function(direction) {
+            currentLightboxIndex += direction;
+            if (currentLightboxIndex >= galleryImages.length) {
+                currentLightboxIndex = 0;
+            } else if (currentLightboxIndex < 0) {
+                currentLightboxIndex = galleryImages.length - 1;
+            }
+            updateLightboxContent();
+        };
+
+        function updateLightboxContent() {
+            const imgData = galleryImages[currentLightboxIndex];
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            
+            lightboxImg.src = imgData.url;
+            lightboxCaption.innerText = imgData.credit;
+        }
 
         // --- NAVEGAÇÃO SPA & FILTRO DE AUDIO ---
         // Audio Filter State
@@ -961,6 +1702,44 @@
         let audioAnalyser = null;
         let distortionNode = null; // Overdrive Node (Stretch)
         let isAudioInit = false;
+
+        // --- ÁUDIO DO SISTEMA ---
+        const bgMusic = new Audio(tracks[0].url); // Start with Track 1
+        bgMusic.loop = false; // Disable native loop to allow manual control
+        bgMusic.volume = 0; 
+        bgMusic.crossOrigin = "anonymous"; 
+        bgMusic.preservesPitch = false;
+
+        // Add event listener for loop logic
+        bgMusic.addEventListener('ended', () => {
+            // Check for user interaction
+            if (state.userInteracted) {
+                // If user interacted with controls, just loop the current track indefinitely
+                bgMusic.currentTime = 0;
+                bgMusic.play().catch(e => console.log("Replay error:", e));
+                return;
+            }
+
+            state.loopCount++;
+            
+            // Loop twice (play once + replay once) before moving on
+            // Or play twice total? Let's assume play once, repeat once = 2 plays
+            if (state.loopCount < 2) {
+                bgMusic.currentTime = 0;
+                bgMusic.play().catch(e => console.log("Replay error:", e));
+            } else {
+                // Reset loop count and move to next track
+                state.loopCount = 0;
+                let nextIndex = state.currentTrackIndex + 1;
+                if (nextIndex >= tracks.length) nextIndex = 0;
+                
+                // Update Dial UI
+                radioDial.value = nextIndex;
+                
+                // Change Track
+                changeTrack(nextIndex);
+            }
+        });
 
         function initAudio() {
             if(isAudioInit) return;
@@ -981,7 +1760,7 @@
                 distortionNode.oversample = '4x';
 
                 // 2. FOV Filters (Series: Highpass + Lowpass)
-                // Inicializa totalmente aberto (SOM LIMPO)
+                // Inicializa totally aberto (SOM LIMPO)
                 fovFilterHigh = audioContext.createBiquadFilter();
                 fovFilterHigh.type = "highpass";
                 fovFilterHigh.frequency.value = 20; // Deixa passar tudo acima de 20Hz
@@ -1019,6 +1798,160 @@
             } catch(e) {
                 console.error("Web Audio API not supported or error:", e);
             }
+        }
+
+        // --- RADIO DIAL LOGIC ---
+        radioDial.addEventListener('input', (e) => {
+            const index = parseInt(e.target.value);
+            changeTrack(index);
+        });
+        
+        // Expose to window for number clicks
+        window.changeTrack = function(index) {
+            radioDial.value = index; // Update slider visual
+            
+            state.currentTrackIndex = index;
+            state.loopCount = 0; // Reset loop count on manual change
+            const track = tracks[index];
+            
+            // RESET EFFECTS AND INTERACTION FLAG
+            resetEffects();
+            
+            // 1. Update UI Text
+            trackNameDisplay.innerText = track.title;
+            
+            // 2. Update Theme Colors
+            updateThemeColors(track.theme);
+
+            // 3. Update Audio Source
+            const wasPlaying = !bgMusic.paused;
+            const currentVolume = bgMusic.volume; // Keep volume consistency
+            
+            bgMusic.src = track.url;
+            bgMusic.load(); // Reload audio element
+            
+            // Resume play if it was playing, or start if it's auto-play context
+            // Note: If user manually changes, we usually want it to play immediately if system is started
+            if (state.introFinished) { 
+                bgMusic.play().catch(e => console.log("Play error:", e));
+            }
+            
+            bgMusic.volume = currentVolume;
+        };
+
+        // Reset Effects Function
+        function resetEffects() {
+            // Reset interaction flag so auto-play works again for the new track
+            state.userInteracted = false;
+
+            // Reset State values
+            state.speed = state.baseSpeed; // 32
+            state.structure = 0.0;
+            state.stretch = 0;
+            
+            // Reset Slider DOM elements
+            speedSlider.value = 100;
+            speedVal.innerText = "100%";
+            structureSlider.value = 0;
+            stretchSlider.value = 0;
+            fovSlider.value = 40;
+            
+            // Reset Audio Parameters
+            if (mixer) {
+                mixer.timeScale = 1.0;
+                if(mixer.wireMixer) mixer.wireMixer.timeScale = 1.0;
+            }
+            bgMusic.playbackRate = 1.0;
+            
+            updateOverdrive(); // Resets distortion based on state.stretch (0)
+            updateFovAudio(40); // Resets filters based on FOV (40)
+
+            // Reset Visuals
+            wireMaterial.opacity = 0;
+            camera.fov = 40;
+            camera.updateProjectionMatrix();
+
+            // Note: Ghost mode is kept as per user preference (or default true), usually effects resets don't toggle modes unless specified, but we can reset if needed. 
+            // The prompt said "efeitos (velocidade, alongamento e distorção) devem ser resetados". Ghost mode wasn't explicitly listed.
+        }
+
+        // Arrows logic
+        window.adjustTrack = function(delta) {
+            let newIndex = state.currentTrackIndex + delta;
+            if (newIndex > 9) newIndex = 0;
+            if (newIndex < 0) newIndex = 9;
+            changeTrack(newIndex);
+        }
+
+        // Helper to convert hex to rgba
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function updateThemeColors(hexColor) {
+            // Update CSS Variables
+            document.documentElement.style.setProperty('--primary-color', hexColor);
+            
+            // Calculate glows based on new color
+            const glowColor = hexToRgba(hexColor, 0.8);
+            const secondaryColor = hexToRgba(hexColor, 0.3);
+
+            document.documentElement.style.setProperty('--text-shadow', glowColor);
+            document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+            
+            // Convert Hex to Three.js Color
+            const threeColor = new THREE.Color(hexColor);
+            
+            // 1. Sky/Fog (Darker version of theme)
+            const skyColor = threeColor.clone().multiplyScalar(0.15); 
+            scene.background.copy(skyColor);
+            scene.fog.color.copy(skyColor);
+            
+            // Update CSS bg for smoothness outside canvas
+            document.documentElement.style.setProperty('--bg-color', '#' + skyColor.getHexString());
+
+            // 2. Ground (Slightly lighter/different shade)
+            const groundColor = threeColor.clone().multiplyScalar(0.25);
+            if (typeof planeMat !== 'undefined') {
+                planeMat.color.copy(groundColor);
+            }
+
+            // 3. Rocks (Darker version of theme)
+            const rockColor = threeColor.clone().multiplyScalar(0.3); // Slightly brighter than ground
+            if (typeof rockMat !== 'undefined') {
+                rockMat.color.copy(rockColor);
+            }
+
+            // Update Materials
+            if (horseModel) {
+                // If ghost mode, material is ghostMaterial, else horseMaterial
+                // But both need color update just in case
+                ghostMaterial.color.set(threeColor);
+                // For horseMaterial (Standard), we tint it.
+                // Using the theme color directly as base avoids whitish tint issues when mixing with pale base.
+                horseMaterial.color.set(threeColor); 
+            }
+
+            if (wireModel) {
+                wireMaterial.color.set(threeColor);
+            }
+
+            if (stars) {
+                stars.material.uniforms.color.value.set(threeColor);
+            }
+            
+            // Update Tooltip
+            const markers = document.querySelectorAll('.cam-marker, .cam-line');
+            markers.forEach(el => el.style.backgroundColor = hexColor);
+            
+            const tooltips = document.querySelectorAll('.cam-content');
+            tooltips.forEach(el => {
+                el.style.color = hexColor;
+                el.style.borderColor = hexColor;
+            });
         }
 
         // Helper to generate distortion curve
@@ -1182,6 +2115,7 @@
                     toggleHud(true); // Desktop: Abre HUD e Pre-save (via toggleHud logic)
                 }
                 
+                // O dial já está dentro do HUD, então apenas garantimos visibilidade dos botões
                 hudToggleBtn.style.display = 'block';
                 canvasContainer.style.filter = 'blur(0px)';
                 
@@ -1204,20 +2138,13 @@
             }
         }
 
-        // --- ÁUDIO DO SISTEMA ---
-        const bgMusic = new Audio('https://raw.githubusercontent.com/ganwalk/cavalo/main/realment%20loopada.mp3');
-        bgMusic.loop = true;
-        bgMusic.volume = 0; 
-        bgMusic.crossOrigin = "anonymous"; 
-        bgMusic.preservesPitch = false;
-
         function log(msg) {
             consoleLog.innerHTML = `> ${msg}<br>` + consoleLog.innerHTML;
         }
 
         // --- Configuração da Cena ---
         const scene = new THREE.Scene();
-        const bgColor = new THREE.Color(0x2b1d14);
+        const bgColor = new THREE.Color(0x2b1d14); // Keep base bg dark
         scene.background = bgColor;
         scene.fog = new THREE.Fog(0x2b1d14, 15, 60);
 
@@ -1396,7 +2323,10 @@
                 horseModel.rotation.y = Math.PI / 2; 
                 horseModel.scale.set(0.025, 0.025, 0.025); 
                 horseModel.position.y = 0;
-                horseModel.material = horseMaterial;
+                
+                // Initial material check based on default state
+                horseModel.material = state.ghostMode ? ghostMaterial : horseMaterial;
+                
                 horseModel.castShadow = true;
                 horseModel.receiveShadow = true;
                 scene.add(horseModel);
@@ -1527,6 +2457,9 @@
 
         function startSystem() {
             initAudio();
+            
+            // Force initial theme update to match "return" state
+            updateThemeColors(tracks[0].theme);
 
             bgMusic.play().then(() => {
                 console.log("Audio iniciado");
@@ -1559,13 +2492,6 @@
         }
 
         // --- INTERAÇÃO HUD ---
-        const speedSlider = document.getElementById('speed-slider');
-        const structureSlider = document.getElementById('structure-slider'); 
-        const stretchSlider = document.getElementById('stretch-slider'); 
-        const fovSlider = document.getElementById('fov-slider');
-        const ghostBtn = document.getElementById('ghost-btn');
-        const speedVal = document.getElementById('speed-val');
-
         hudToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleHud(true);
@@ -1583,6 +2509,14 @@
         });
 
         hud.addEventListener('mousedown', (e) => e.stopPropagation());
+
+        // Interaction Detection Logic
+        const controlsInputs = [speedSlider, structureSlider, stretchSlider, fovSlider, ghostBtn];
+        controlsInputs.forEach(input => {
+            // Use 'input' for sliders to catch drag, 'click' for button
+            input.addEventListener('input', () => state.userInteracted = true);
+            input.addEventListener('click', () => state.userInteracted = true);
+        });
 
         // 1. VELOCIDADE
         speedSlider.addEventListener('input', (e) => {
