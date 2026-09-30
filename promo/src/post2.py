@@ -51,15 +51,15 @@ FOV_K = [[0.5, 40], [2.5, 120], [4, 120], [5.5, 20], [7, 20], [7.8, 40]]
 
 # ------------------------------------------------------------------ captions: (start, end, [(beat, text)])
 CAPS = [
-    (0.25,          T['ignite'],  [(0, 'UM SITE PODE SER'), (2.5, 'MAIS QUE UMA PÁGINA.')]),
-    (T['ignite'],   T['speed'],   [(0, 'ESTE VIROU UMA'), (1.5, 'EXPERIÊNCIA INTERATIVA.')]),
-    (T['speed'],    T['struct'],  [(.25, 'JAVASCRIPT LIGA'), (2, 'O TROTE À MÚSICA.')]),
-    (T['struct'],   T['stretch'], [(.25, 'WEBGL MOSTRA'), (2, 'O ESQUELETO 3D.')]),
-    (T['stretch'],  T['fov'],     [(.25, 'A WEB AUDIO API'), (2, 'DISTORCE O SOM.')]),
-    (T['fov'],      T['scan'],    [(.25, 'A LENTE DA CÂMERA'), (2, 'VIRA FILTRO DE ÁUDIO.')]),
-    (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS.'), (2, 'CADA UMA COM'), (3, 'SUA COR E SEU SOM.')]),
-    (T['orbit'],    T['pitch'],   [(0, 'GLSL + THREE.JS:'), (2, '3D DIRETO NO NAVEGADOR.')]),
-    (T['pitch'],    T['card'] - B,[(0, 'E O SEU PROJETO?'), (4, 'MARCA. PRODUTO. EVENTO.'), (5.5, 'PORTFÓLIO. MUSEU. ESCOLA.'), (8, 'TAMBÉM PODE VIRAR'), (9, 'UMA EXPERIÊNCIA.')]),
+    (0.25,          T['ignite'],  [(0, 'NESTE SITE, UM CAVALO'), (2.5, 'CORRE NO DESERTO.')]),
+    (T['ignite'],   T['speed'],   [(0, 'CADA CONTROLE MUDA'), (1.5, 'A IMAGEM E O SOM.')]),
+    (T['speed'],    T['struct'],  [(.25, 'O TROTE CONTROLA'), (2, 'O TEMPO DA MÚSICA.')]),
+    (T['struct'],   T['stretch'], [(.25, 'OUTRO MOSTRA'), (2, 'O ESQUELETO 3D.')]),
+    (T['stretch'],  T['fov'],     [(.25, 'ESTICAR O CAVALO'), (2, 'DISTORCE O SOM.')]),
+    (T['fov'],      T['scan'],    [(.25, 'A LENTE ABRE'), (2, 'E A MÚSICA ABAFA.')]),
+    (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS,'), (1.5, 'CADA UMA COM SUA'), (2.5, 'COR E SEU SOM.')]),
+    (T['orbit'],    T['pitch'],   [(0, 'ARRASTE O DEDO'), (2, 'E A CÂMERA GIRA.')]),
+    (T['pitch'],    T['card'] - B,[(0, 'DÁ PRA FAZER ISSO'), (1.5, 'PARA UM PRODUTO'), (2.5, 'QUE GIRA NA TELA,'), (4.5, 'UMA EXPOSIÇÃO QUE'), (5.5, 'REAGE AO TOQUE'), (7.5, 'OU UMA MARCA'), (8.5, 'COM SOM PRÓPRIO.')]),
 ]
 CPS = 30
 
@@ -103,40 +103,40 @@ def caption_layer(lines, color, blink, y=330, sz0=96):
 # ------------------------------------------------------------------ live code panel (real lines from index.htm, live values)
 def code_for(t):
     if T['ignite'] + B <= t < T['speed']:
-        return 'index.htm — HTML', ['<div id="canvas-container"></div>',
+        return 'index.htm', ['<div id="canvas-container"></div>',
                                     '<script type="module">',
                                     "  import * as THREE from 'three';",
                                     "  loader.load('Horse.glb', ...);"]
     if T['speed'] <= t < T['struct']:
         v = kf(SPEED_K, (t - T['speed']) / B)
-        return 'JAVASCRIPT', [f'speedSlider.value = {v:.0f};',
+        return 'index.htm', [f'speedSlider.value = {v:.0f};',
                               f'mixer.timeScale = {v / 100 * 2:.2f};',
                               f'bgMusic.playbackRate = {max(0.1, v / 100):.2f};']
     if T['struct'] <= t < T['stretch']:
         s = kf(STRUCT_K, (t - T['struct']) / B) / 100
-        return 'THREE.JS / WEBGL', ['new THREE.MeshBasicMaterial({',
+        return 'index.htm', ['new THREE.MeshBasicMaterial({',
                                     '  wireframe: true, transparent: true });',
                                     f'wireMaterial.opacity = {s:.2f};']
     if T['stretch'] <= t < T['fov']:
         s = kf(STRETCH_K, (t - T['stretch']) / B) / 100
-        return 'WEB AUDIO API', [f'horseModel.scale.y = {0.025 * (1 + s * 3):.4f};',
+        return 'index.htm', [f'horseModel.scale.y = {0.025 * (1 + s * 3):.4f};',
                                  'distortionNode = ctx.createWaveShaper();',
                                  f'distortionNode.curve = makeDistortionCurve({s * 400:.0f});']
     if T['fov'] <= t < T['scan']:
         fv = kf(FOV_K, (t - T['fov']) / B)
         tt = max(0, (fv - 40) / 80)
-        return 'WEB AUDIO API', [f'camera.fov = {fv:.0f};',
+        return 'index.htm', [f'camera.fov = {fv:.0f};',
                                  f'fovFilterLow.frequency  = {22000 * 0.15 ** tt:.0f}; // Hz',
                                  f'fovFilterHigh.frequency = {20 + tt ** 2 * 700:.0f}; // Hz']
     if T['scan'] <= t < T['orbit']:
         i = int(min(9, max(0, (t - T['scan']) // B)))
-        return 'JAVASCRIPT + CSS', [f'changeTrack({i});',
+        return 'index.htm', [f'changeTrack({i});',
                                     f'bgMusic.src = tracks[{i}].url;',
                                     f"--primary-color: {THEMES[i]};"]
     if T['orbit'] <= t < T['orbit'] + 7 * B:
         b = (t - T['orbit']) / B
         mat = 'horseMaterial' if 2 <= b < 6 else 'ghostMaterial'
-        return 'GLSL', ['gl_PointSize = size * blink * (300.0 / -mv.z);',
+        return 'index.htm', ['gl_PointSize = size * blink * (300.0 / -mv.z);',
                         'gl_FragColor = vec4(color, 1.0);',
                         f'horseModel.material = {mat};']
     return None, None
@@ -214,13 +214,13 @@ def card_layer(t, color):
         elif box == 'outline':
             d.rectangle((x - 30, y - 12, x + tw + 30, y + sz + 6), fill=(20, 10, 5, 215), outline=col + (255,), width=3)
         d.text((x, y - sz * 0.12), txt, font=f, fill=fill)
-    w1 = 'EXPERIÊNCIAS'
+    w1 = 'SITES INTERATIVOS'
     n = min(len(w1), int(bt * B * 34) + 1)
-    centered(w1[:n], 330, 124, cream + (255,))
-    if bt >= 0.5: centered('INTERATIVAS NA WEB', 470, 110, cream + (255,))
-    if bt >= 1.75: centered('VEJA FUNCIONANDO:', 800, 46, col + (255,))
-    if bt >= 2: centered('dezerthorse.github.io/cavalo', 870, 66, (20, 10, 5, 255), box='solid')
-    if bt >= 3: centered('FALE COM @GANWALK', 1060, 70, cream + (255,), box='outline')
+    centered(w1[:n], 360, 124, cream + (255,))
+    if bt >= 0.5: centered('SOB MEDIDA', 500, 124, cream + (255,))
+    if bt >= 1.75: centered('VEJA ESTE AO VIVO:', 740, 46, col + (255,))
+    if bt >= 2: centered('dezerthorse.github.io/cavalo', 810, 66, (20, 10, 5, 255), box='solid')
+    if bt >= 3: centered('FALE COM @GANWALK', 990, 70, cream + (255,), box='outline')
     glow = lay.filter(ImageFilter.GaussianBlur(16))
     arr = np.asarray(Image.alpha_composite(glow, lay)).astype(np.float32)
     return arr, bt
@@ -415,7 +415,7 @@ for f in frames:
         if t >= T['away']:
             jitter = int(rng.integers(10, 30 + int(80 * (t - T['away']) / (T['end'] - T['away']))))
         img = over(img, lay, 0, jitter)
-        if bt >= 0.75:
+        if False:
             img = over(img, chips_layer(min(len(STACK), int((bt - 0.75) * 6) + 1), color, sz=40, center=True), 630, jitter)
     else:
         lines, left = caption_state(t)
@@ -425,7 +425,7 @@ for f in frames:
             dx = jitter if left >= 0.1 else int(rng.integers(20, 60))
             img = over(img, lay, 0, dx)
         # stack chips during the "virou um site" beat
-        if T['ignite'] + 3.5 * B <= t < T['speed']:
+        if False:
             n = int((t - T['ignite'] - 3.5 * B) / (B / 2)) + 1
             img = over(img, chips_layer(min(n, len(STACK)), color), 610, jitter)
         if T['scan'] <= t < T['orbit']:
