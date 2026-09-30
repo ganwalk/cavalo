@@ -19,7 +19,7 @@ const EXPOSE = `
           get horse() { return horseModel; }, get wire() { return wireModel; }, get mixer() { return mixer; } };
         simulateLoading();`;
 async function open(DPR = 2) {
-  const b = await chromium.launch({ channel: 'chromium', proxy: { server: 'http://127.0.0.1:39717' },
+  const b = await chromium.launch({ channel: 'chromium', proxy: { server: process.env.HTTPS_PROXY },
     args: ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
   const ctx = await b.newContext({ viewport: { width: 540, height: 960 }, deviceScaleFactor: DPR });
   await ctx.addInitScript(INIT);
