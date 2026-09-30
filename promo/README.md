@@ -1,8 +1,9 @@
-# DEZERT HORSE — reel "UM ÁLBUM MERECE MAIS QUE UM LINK"
+# Reel "UM SITE PODE SER MAIS QUE UMA PÁGINA"
 
 Vídeo vertical (1080×1920, 30 fps, ~34,7 s) para **Instagram Reels, TikTok e YouTube Shorts**.
-Conta a solução do projeto: usar **HTML, CSS, JavaScript, Three.js/WebGL, GLSL e Web Audio API** para transformar
-o álbum de DEZERT HORSE em um site interativo, e convida quem assiste a fazer o mesmo no próprio projeto.
+Apresenta a solução usada em https://dezerthorse.github.io/cavalo/: uma **experiência interativa na web** feita com
+**HTML, CSS, JavaScript, Three.js/WebGL, GLSL e Web Audio API**, e convida quem assiste a levar a mesma ideia para o
+próprio projeto (marca, produto, evento, portfólio, museu, escola...).
 
 - `dezert-horse-reel.mp4` — vídeo final (H.264 + AAC, loudness −14 LUFS)
 - `capa.png` — sugestão de capa/thumbnail
@@ -14,18 +15,18 @@ Tudo o que aparece foi capturado do site ao vivo (https://dezerthorse.github.io/
 A trilha é "Realmente Óbvio" a 152 BPM, e cada corte cai no tempo. Os trechos de código na tela são linhas reais
 do `index.htm`, com os valores mudando ao vivo conforme o controle se move.
 
-| Tempo | Legenda | Código na tela | Som |
+| Tempo | Legenda | Código na tela (abaixo do painel do site) | Som |
 |---|---|---|---|
-| 0:00 | UM ÁLBUM MERECE / MAIS QUE UM LINK. | — | a música começa abafada e se abre |
-| 0:03 | ENTÃO VIROU / UM SITE INTERATIVO. + HTML · CSS · JAVASCRIPT · THREE.JS · WEBGL · GLSL · WEB AUDIO | `<div id="canvas-container">`, `import * as THREE` | impacto: as cores do site acendem |
+| 0:00 | UM SITE PODE SER / MAIS QUE UMA PÁGINA. | — | a música começa abafada e se abre |
+| 0:03 | ESTE VIROU UMA / EXPERIÊNCIA INTERATIVA. + HTML · CSS · JAVASCRIPT · THREE.JS · WEBGL · GLSL · WEB AUDIO | `<div id="canvas-container">`, `import * as THREE` | impacto: as cores do site acendem |
 | 0:06 | JAVASCRIPT LIGA / O TROTE À MÚSICA. | `bgMusic.playbackRate = 0.15` → `2.00` | varispeed |
 | 0:09 | WEBGL MOSTRA / O ESQUELETO 3D. | `wireMaterial.opacity` | bitcrush |
 | 0:12 | A WEB AUDIO API / DISTORCE O SOM. | `distortionNode.curve = makeDistortionCurve(400)` | overdrive (a mesma curva do site) |
 | 0:15 | A LENTE DA CÂMERA / VIRA FILTRO DE ÁUDIO. | `camera.fov`, `fovFilterLow.frequency` | filtros HP/LP (as mesmas fórmulas do site) |
-| 0:19 | 10 FAIXAS. / 10 FREQUÊNCIAS. / CADA UMA COM SUA COR. + FREQ 01/10 → 10/10 | `changeTrack(i)`, `--primary-color` | trecho real de cada uma das 10 faixas, um por tempo |
+| 0:19 | 10 FREQUÊNCIAS. / CADA UMA COM / SUA COR E SEU SOM. + FREQ 01/10 → 10/10 | `changeTrack(i)`, `--primary-color` | trecho real de cada uma das 10 frequências, um por tempo |
 | 0:24 | GLSL + THREE.JS: / 3D DIRETO NO NAVEGADOR. | shader das estrelas, `horseModel.material` | tape-stop e beat-repeat |
-| 0:27 | E O SEU PROJETO? / ÁLBUM. CLIPE. SHOW. / EXPOSIÇÃO. MARCA. / TAMBÉM PODE VIRAR / UMA EXPERIÊNCIA. | — | tape-stop antes do cartão final |
-| 0:31 | SITES INTERATIVOS PARA ARTISTAS · VEJA FUNCIONANDO: dezerthorse.github.io/cavalo · FALE COM @GANWALK | — | a música volta a se fechar |
+| 0:27 | E O SEU PROJETO? / MARCA. PRODUTO. EVENTO. / PORTFÓLIO. MUSEU. ESCOLA. / TAMBÉM PODE VIRAR / UMA EXPERIÊNCIA. | — | tape-stop antes do cartão final |
+| 0:31 | EXPERIÊNCIAS INTERATIVAS NA WEB · VEJA FUNCIONANDO: dezerthorse.github.io/cavalo · FALE COM @GANWALK | — | a música volta a se fechar |
 
 O último plano volta ao plano de abertura (cavalo ao longe, som abafado), então o vídeo emenda sem corte quando repete.
 As legendas ficam fora das zonas cobertas pela interface das plataformas.
@@ -34,17 +35,17 @@ As legendas ficam fora das zonas cobertas pela interface das plataformas.
 
 **Instagram Reels / TikTok**
 
-> um álbum merece mais que um link. 🐎
-> o disco de DEZERT HORSE virou um site interativo feito com HTML, CSS, JavaScript, Three.js, GLSL e Web Audio API: o trote muda o tempo da música, a lente vira filtro, e são 10 faixas em 10 frequências.
+> um site pode ser mais que uma página. 🐎
+> este aqui virou uma experiência interativa feita com HTML, CSS, JavaScript, Three.js, GLSL e Web Audio API: o trote muda o tempo da música, a lente vira filtro de áudio, e são 10 frequências, cada uma com sua cor e seu som.
 > veja funcionando: dezerthorse.github.io/cavalo
-> quer algo assim pro seu álbum, clipe, show ou marca? chama no direct.
+> marca, produto, evento, portfólio, museu, escola: o seu projeto também pode virar uma experiência. chama no direct.
 >
-> #creativecoding #threejs #webgl #webaudio #javascript #siteinterativo #glitchart #musicaindependente #dezerthorse #netart
+> #creativecoding #threejs #webgl #webaudio #javascript #experienciainterativa #webdesign #glitchart #interactivedesign #netart
 
 **YouTube Shorts**
 
-- Título: `Um álbum que vira site interativo 🐎 (HTML + JS + WebGL + Web Audio) #shorts`
-- Descrição: `O álbum de DEZERT HORSE virou um site interativo: JavaScript liga o trote à música, a Web Audio API distorce e filtra o som, e Three.js/GLSL desenham o deserto no navegador. Veja funcionando: https://dezerthorse.github.io/cavalo/ · Quer um desses pro seu projeto? Fale com @ganwalk.`
+- Título: `Um site que vira experiência interativa 🐎 (HTML + JS + WebGL + Web Audio) #shorts`
+- Descrição: `JavaScript liga o trote à música, a Web Audio API distorce e filtra o som, e Three.js/GLSL desenham o deserto direto no navegador. Veja funcionando: https://dezerthorse.github.io/cavalo/ · Quer uma experiência assim pro seu projeto? Fale com @ganwalk.`
 
 ## Como regenerar
 

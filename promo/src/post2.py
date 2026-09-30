@@ -51,15 +51,15 @@ FOV_K = [[0.5, 40], [2.5, 120], [4, 120], [5.5, 20], [7, 20], [7.8, 40]]
 
 # ------------------------------------------------------------------ captions: (start, end, [(beat, text)])
 CAPS = [
-    (0.25,          T['ignite'],  [(0, 'UM ÁLBUM MERECE'), (2.5, 'MAIS QUE UM LINK.')]),
-    (T['ignite'],   T['speed'],   [(0, 'ENTÃO VIROU'), (1.5, 'UM SITE INTERATIVO.')]),
+    (0.25,          T['ignite'],  [(0, 'UM SITE PODE SER'), (2.5, 'MAIS QUE UMA PÁGINA.')]),
+    (T['ignite'],   T['speed'],   [(0, 'ESTE VIROU UMA'), (1.5, 'EXPERIÊNCIA INTERATIVA.')]),
     (T['speed'],    T['struct'],  [(.25, 'JAVASCRIPT LIGA'), (2, 'O TROTE À MÚSICA.')]),
     (T['struct'],   T['stretch'], [(.25, 'WEBGL MOSTRA'), (2, 'O ESQUELETO 3D.')]),
     (T['stretch'],  T['fov'],     [(.25, 'A WEB AUDIO API'), (2, 'DISTORCE O SOM.')]),
     (T['fov'],      T['scan'],    [(.25, 'A LENTE DA CÂMERA'), (2, 'VIRA FILTRO DE ÁUDIO.')]),
-    (T['scan'],     T['orbit'],   [(0, '10 FAIXAS.'), (1, '10 FREQUÊNCIAS.'), (10, 'CADA UMA COM SUA COR.')]),
+    (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS.'), (2, 'CADA UMA COM'), (3, 'SUA COR E SEU SOM.')]),
     (T['orbit'],    T['pitch'],   [(0, 'GLSL + THREE.JS:'), (2, '3D DIRETO NO NAVEGADOR.')]),
-    (T['pitch'],    T['card'] - B,[(0, 'E O SEU PROJETO?'), (4, 'ÁLBUM. CLIPE. SHOW.'), (5.5, 'EXPOSIÇÃO. MARCA.'), (8, 'TAMBÉM PODE VIRAR'), (9, 'UMA EXPERIÊNCIA.')]),
+    (T['pitch'],    T['card'] - B,[(0, 'E O SEU PROJETO?'), (4, 'MARCA. PRODUTO. EVENTO.'), (5.5, 'PORTFÓLIO. MUSEU. ESCOLA.'), (8, 'TAMBÉM PODE VIRAR'), (9, 'UMA EXPERIÊNCIA.')]),
 ]
 CPS = 30
 
@@ -146,7 +146,7 @@ TOK = re.compile(r"(//.*$)|('[^']*'|\"[^\"]*\")|(\b\d+(?:\.\d+)?\b|#[0-9a-fA-F]{
 def code_layer(title, lines, color):
     col = hex2rgb(color)
     cream = tuple(int(c * .3 + 255 * .7) for c in col)
-    fs = 42; lh = 50
+    fs = 40; lh = 46
     h = 64 + lh * len(lines) + 18
     x0, x1, y0 = 40, W - 40, 0
     lay = Image.new('RGBA', (W, h + 40), (0, 0, 0, 0))
@@ -214,10 +214,10 @@ def card_layer(t, color):
         elif box == 'outline':
             d.rectangle((x - 30, y - 12, x + tw + 30, y + sz + 6), fill=(20, 10, 5, 215), outline=col + (255,), width=3)
         d.text((x, y - sz * 0.12), txt, font=f, fill=fill)
-    w1 = 'SITES INTERATIVOS'
+    w1 = 'EXPERIÊNCIAS'
     n = min(len(w1), int(bt * B * 34) + 1)
     centered(w1[:n], 330, 124, cream + (255,))
-    if bt >= 0.5: centered('PARA ARTISTAS', 470, 124, cream + (255,))
+    if bt >= 0.5: centered('INTERATIVAS NA WEB', 470, 110, cream + (255,))
     if bt >= 1.75: centered('VEJA FUNCIONANDO:', 800, 46, col + (255,))
     if bt >= 2: centered('dezerthorse.github.io/cavalo', 870, 66, (20, 10, 5, 255), box='solid')
     if bt >= 3: centered('FALE COM @GANWALK', 1060, 70, cream + (255,), box='outline')
@@ -430,12 +430,11 @@ for f in frames:
             img = over(img, chips_layer(min(n, len(STACK)), color), 610, jitter)
         if T['scan'] <= t < T['orbit']:
             i = int(min(9, max(0, (t - T['scan']) // B)))
-            img = over(img, freq_layer(i, color), 620 if t < T['scan'] + 10 * B else 760, jitter)
+            img = over(img, freq_layer(i, color), 770, jitter)
         title, code = code_for(t)
         if code:
             cl = code_layer(title, code, color)
-            y = 1060 if not (T['ignite'] <= t < T['speed']) else 1180
-            if T['orbit'] <= t < T['pitch']: y = 900
+            y = 1508
             img = over(img, cl, y, jitter)
     if t < T['away']:
         img = over(img, stamp_layer(color, t), 110)
