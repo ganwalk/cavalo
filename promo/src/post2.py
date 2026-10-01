@@ -51,14 +51,14 @@ FOV_K = [[0.5, 40], [2.5, 120], [4, 120], [5.5, 20], [7, 20], [7.8, 40]]
 
 # ------------------------------------------------------------------ captions: (start, end, [(beat, text)])
 CAPS = [
-    (0.25,          T['ignite'],  [(0, 'NESTE SITE, UM CAVALO'), (2.5, 'CORRE NO DESERTO.')]),
-    (T['ignite'],   T['speed'],   [(0, 'CADA CONTROLE MUDA'), (1.5, 'A IMAGEM E O SOM.')]),
-    (T['speed'],    T['struct'],  [(.25, 'O TROTE CONTROLA'), (2, 'O TEMPO DA MÚSICA.')]),
-    (T['struct'],   T['stretch'], [(.25, 'OUTRO MOSTRA'), (2, 'O ESQUELETO 3D.')]),
-    (T['stretch'],  T['fov'],     [(.25, 'ESTICAR O CAVALO'), (2, 'DISTORCE O SOM.')]),
-    (T['fov'],      T['scan'],    [(.25, 'A LENTE ABRE'), (2, 'E A MÚSICA ABAFA.')]),
+    (0.25,          T['ignite'],  [(0, 'O SEU SITE PODE SER'), (2.5, 'MAIS QUE SÓ UM [SITE].')]),
+    (T['ignite'],   T['speed'],   [(0, 'EXPERIÊNCIAS INTERATIVAS'), (1.5, 'DE IMAGEM E SOM.')]),
+    (T['speed'],    T['struct'],  [(.25, 'ELEVANDO SEU PROJETO'), (2, 'A MAIS QUE SÓ UM LINK')]),
+    (T['struct'],   T['stretch'], [(.25, 'REPRESENTANDO'), (1.25, 'SUA IDENTIDADE'), (2.5, 'ATRAVÉS DA TECNOLOGIA.')]),
+    (T['stretch'],  T['fov'],     [(.25, 'SEU PÚBLICO MEXE'), (2, 'E O SOM RESPONDE.')]),
+    (T['fov'],      T['scan'],    [(.25, 'UM AJUSTE NA LENTE'), (2, 'MUDA O CLIMA DA MÚSICA.')]),
     (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS,'), (1.5, 'CADA UMA COM SUA'), (2.5, 'COR E SEU SOM.')]),
-    (T['orbit'],    T['pitch'],   [(0, 'ARRASTE O DEDO'), (2, 'E A CÂMERA GIRA.')]),
+    (T['orbit'],    T['pitch'],   [(0, 'FUNCIONA NO CELULAR,'), (2, 'É SÓ ARRASTAR O DEDO.')]),
     (T['pitch'],    T['card'] - B,[(0, 'DÁ PRA FAZER ISSO'), (1.5, 'PARA UM PRODUTO'), (2.5, 'QUE GIRA NA TELA,'), (4.5, 'UMA EXPOSIÇÃO QUE'), (5.5, 'REAGE AO TOQUE'), (7.5, 'OU UMA MARCA'), (8.5, 'COM SOM PRÓPRIO.')]),
 ]
 CPS = 30
@@ -70,14 +70,36 @@ def caption_state(t):
             for bo, txt in lines:
                 ts = a + bo * B
                 if t >= ts:
-                    n = min(len(txt), int((t - ts) * CPS) + 1)
-                    out.append((txt[:n], n < len(txt)))
+                    plain = txt.replace('[', '').replace(']', '')
+                    n = min(len(plain), int((t - ts) * CPS) + 1)
+                    out.append((txt if n >= len(plain) else plain[:n], n < len(plain)))
             return out, (b - t)
     return [], 0
 
 cap_cache = {}
-def caption_layer(lines, color, blink, y=330, sz0=96):
-    key = (tuple(lines), color, blink, y, sz0)
+GLITCH_SUB = {'S': ['5', '$', '§'], 'I': ['1', '!', '|'], 'T': ['7', '+'], 'E': ['3', '€', 'Ξ']}
+
+def glitch_word(lay, x, y, word, f, sz, col, txtcol, frame):
+    """Animated glitch on one word: char swaps, RGB split and sliced displacement, new every frame."""
+    r = np.random.default_rng(frame * 31 + 7)
+    hit = r.random() < 0.55
+    chars = ''.join((r.choice(GLITCH_SUB[c]) if (hit and c in GLITCH_SUB and r.random() < 0.35) else c) for c in word)
+    tmp = Image.new('RGBA', (int(sz * len(word) * 0.75) + 120, int(sz * 1.6)), (0, 0, 0, 0))
+    td = ImageDraw.Draw(tmp)
+    dx = int(r.integers(4, 16)) if hit else 3
+    td.text((40 - dx, 10), chars, font=f, fill=(255, 30, 60, 200))
+    td.text((40 + dx, 10), chars, font=f, fill=(0, 230, 255, 200))
+    td.text((40, 10), chars, font=f, fill=txtcol + (255,))
+    a = np.array(tmp)
+    if hit:
+        for _ in range(int(r.integers(2, 6))):
+            h = int(r.integers(4, max(6, sz // 3))); yy0 = int(r.integers(0, a.shape[0] - h))
+            a[yy0:yy0 + h] = np.roll(a[yy0:yy0 + h], int(r.integers(-28, 28)), axis=1)
+    lay.alpha_composite(Image.fromarray(a), (int(x - 40), int(y - 10)))
+
+def caption_layer(lines, color, blink, y=330, sz0=96, frame=0):
+    has_glitch = any('[' in txt for txt, _ in lines)
+    key = (tuple(lines), color, blink, y, sz0, frame if has_glitch else None)
     if key in cap_cache: return cap_cache[key]
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(lay)
@@ -85,6 +107,10 @@ def caption_layer(lines, color, blink, y=330, sz0=96):
     txtcol = tuple(int(c * .45 + 255 * .55) for c in col)
     for i, (txt, typing) in enumerate(lines):
         sz = sz0; f = font(sz)
+        gword = None
+        if '[' in txt:
+            pre, rest = txt.split('[', 1); gword, post = rest.split(']', 1)
+            txt = pre + gword + post
         shown = txt + ('█' if (typing or (i == len(lines) - 1 and blink)) else '')
         full_w = d.textlength(txt + '█', font=f)
         while full_w > 900 and sz > 50:
@@ -92,7 +118,13 @@ def caption_layer(lines, color, blink, y=330, sz0=96):
         tw = d.textlength(shown, font=f)
         x, pad = 70, 18
         d.rectangle((x - pad, y - 6, x + tw + pad, y + sz + 4), fill=(20, 10, 5, 215), outline=col + (255,), width=3)
-        d.text((x, y - sz * 0.12), shown, font=f, fill=txtcol + (255,))
+        if gword is None:
+            d.text((x, y - sz * 0.12), shown, font=f, fill=txtcol + (255,))
+        else:
+            d.text((x, y - sz * 0.12), pre, font=f, fill=txtcol + (255,))
+            gx = x + d.textlength(pre, font=f)
+            d.text((gx + d.textlength(gword, font=f), y - sz * 0.12), shown[len(pre) + len(gword):], font=f, fill=txtcol + (255,))
+            glitch_word(lay, gx, y - sz * 0.12, gword, f, sz, col, txtcol, frame)
         y += sz + 42
     glow = lay.filter(ImageFilter.GaussianBlur(14))
     arr = np.asarray(Image.alpha_composite(glow, lay)).astype(np.float32)
@@ -218,7 +250,7 @@ def card_layer(t, color):
     n = min(len(w1), int(bt * B * 34) + 1)
     centered(w1[:n], 360, 124, cream + (255,))
     if bt >= 0.5: centered('SOB MEDIDA', 500, 124, cream + (255,))
-    if bt >= 1.75: centered('VEJA ESTE AO VIVO:', 740, 46, col + (255,))
+    if bt >= 1.75: centered('VEJA ESTE PROJETO COMPLETO:', 740, 46, col + (255,))
     if bt >= 2: centered('dezerthorse.github.io/cavalo', 810, 66, (20, 10, 5, 255), box='solid')
     if bt >= 3: centered('FALE COM @GANWALK', 990, 70, cream + (255,), box='outline')
     glow = lay.filter(ImageFilter.GaussianBlur(16))
@@ -421,7 +453,7 @@ for f in frames:
         lines, left = caption_state(t)
         if lines:
             blink = int(t / (B / 2)) % 2 == 0
-            lay = caption_layer(lines, color, blink)
+            lay = caption_layer(lines, color, blink, frame=f)
             dx = jitter if left >= 0.1 else int(rng.integers(20, 60))
             img = over(img, lay, 0, dx)
         # stack chips during the "virou um site" beat

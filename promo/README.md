@@ -16,16 +16,16 @@ valores mudando junto com o slider.
 
 | Tempo | Legenda | Som |
 |---|---|---|
-| 0:00 | NESTE SITE, UM CAVALO / CORRE NO DESERTO. | a música começa abafada e se abre |
-| 0:03 | CADA CONTROLE MUDA / A IMAGEM E O SOM. | impacto, as cores do site acendem |
-| 0:06 | O TROTE CONTROLA / O TEMPO DA MÚSICA. | a música acelera e desacelera junto |
-| 0:09 | OUTRO MOSTRA / O ESQUELETO 3D. | bitcrush |
-| 0:12 | ESTICAR O CAVALO / DISTORCE O SOM. | overdrive (a mesma curva do site) |
-| 0:15 | A LENTE ABRE / E A MÚSICA ABAFA. | filtros (as mesmas fórmulas do site) |
+| 0:00 | O SEU SITE PODE SER / MAIS QUE SÓ UM SITE. (o último "SITE" com glitch animado) | a música começa abafada e se abre |
+| 0:03 | EXPERIÊNCIAS INTERATIVAS / DE IMAGEM E SOM. | impacto, as cores do site acendem |
+| 0:06 | ELEVANDO SEU PROJETO / A MAIS QUE SÓ UM LINK | a música acelera e desacelera junto |
+| 0:09 | REPRESENTANDO / SUA IDENTIDADE / ATRAVÉS DA TECNOLOGIA. | bitcrush |
+| 0:12 | SEU PÚBLICO MEXE / E O SOM RESPONDE. | overdrive (a mesma curva do site) |
+| 0:15 | UM AJUSTE NA LENTE / MUDA O CLIMA DA MÚSICA. | filtros (as mesmas fórmulas do site) |
 | 0:19 | 10 FREQUÊNCIAS, / CADA UMA COM SUA / COR E SEU SOM. (contador FREQ 01/10 a 10/10) | um trecho de cada frequência por tempo |
-| 0:24 | ARRASTE O DEDO / E A CÂMERA GIRA. | tape-stop e beat-repeat |
+| 0:24 | FUNCIONA NO CELULAR, / É SÓ ARRASTAR O DEDO. | tape-stop e beat-repeat |
 | 0:27 | DÁ PRA FAZER ISSO / PARA UM PRODUTO / QUE GIRA NA TELA, / UMA EXPOSIÇÃO QUE / REAGE AO TOQUE / OU UMA MARCA / COM SOM PRÓPRIO. | tape-stop antes do cartão final |
-| 0:31 | SITES INTERATIVOS SOB MEDIDA · VEJA ESTE AO VIVO: dezerthorse.github.io/cavalo · FALE COM @GANWALK | a música volta a se fechar |
+| 0:31 | SITES INTERATIVOS SOB MEDIDA · VEJA ESTE PROJETO COMPLETO: dezerthorse.github.io/cavalo · FALE COM @GANWALK | a música volta a se fechar |
 
 O último plano volta ao plano de abertura (cavalo ao longe, som abafado), então o vídeo emenda sem corte quando repete.
 
