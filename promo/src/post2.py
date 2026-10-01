@@ -53,11 +53,11 @@ FOV_K = [[0.5, 40], [2.5, 120], [4, 120], [5.5, 20], [7, 20], [7.8, 40]]
 CAPS = [
     (0.25,          T['ignite'],  [(0, 'O SEU SITE PODE SER'), (2.5, 'MAIS QUE SÓ UM [SITE].')]),
     (T['ignite'],   T['speed'],   [(0, 'EXPERIÊNCIAS INTERATIVAS'), (1.5, 'DE IMAGEM E SOM.')]),
-    (T['speed'],    T['struct'],  [(.25, 'SEU PROJETO GANHA'), (2, 'MOVIMENTO E SOM,')]),
-    (T['struct'],   T['stretch'], [(.25, 'COM AS CORES, OS SONS'), (2, 'E O JEITO DA SUA MARCA.')]),
-    (T['stretch'],  T['fov'],     [(.25, 'SEU PÚBLICO MEXE'), (2, 'E O SOM RESPONDE.')]),
-    (T['fov'],      T['scan'],    [(.25, 'UM AJUSTE NA LENTE'), (2, 'MUDA O CLIMA DA MÚSICA.')]),
-    (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS,'), (1.5, 'CADA UMA COM SUA'), (2.5, 'COR E SEU SOM.')]),
+    (T['speed'],    T['struct'],  [(.25, 'SEU PROJETO GANHA'), (2, 'MOVIMENTO E RITMO,')]),
+    (T['struct'],   T['stretch'], [(.25, 'COM AS CORES, A TRILHA'), (2, 'E O JEITO DA SUA MARCA.')]),
+    (T['stretch'],  T['fov'],     [(.25, 'SEU PÚBLICO MEXE'), (2, 'E A MÚSICA RESPONDE.')]),
+    (T['fov'],      T['scan'],    [(.25, 'UM AJUSTE NA LENTE'), (2, 'MUDA TODO O CLIMA.')]),
+    (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS,'), (1.5, 'CADA UMA COM SUA'), (2.5, 'PRÓPRIA COR.')]),
     (T['orbit'],    T['pitch'],   [(0, 'FUNCIONA NO CELULAR,'), (2, 'É SÓ ARRASTAR O DEDO.')]),
     (T['pitch'],    T['card'] - B,[(0, 'DÁ PRA FAZER ISSO'), (1.5, 'PARA UM PRODUTO'), (2.5, 'QUE GIRA NA TELA,'), (4.5, 'UMA EXPOSIÇÃO QUE'), (5.5, 'REAGE AO TOQUE'), (7.5, 'OU UMA MARCA'), (8.5, 'COM SOM PRÓPRIO.')]),
 ]
