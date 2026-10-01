@@ -18,8 +18,8 @@ valores mudando junto com o slider.
 |---|---|---|
 | 0:00 | O SEU SITE PODE SER / MAIS QUE SÓ UM SITE. (o último "SITE" com glitch animado) | a música começa abafada e se abre |
 | 0:03 | EXPERIÊNCIAS INTERATIVAS / DE IMAGEM E SOM. | impacto, as cores do site acendem |
-| 0:06 | ELEVANDO SEU PROJETO / A MAIS QUE SÓ UM LINK | a música acelera e desacelera junto |
-| 0:09 | REPRESENTANDO / SUA IDENTIDADE / ATRAVÉS DA TECNOLOGIA. | bitcrush |
+| 0:06 | SEU PROJETO GANHA / MOVIMENTO E SOM, | a música acelera e desacelera junto |
+| 0:09 | COM AS CORES, OS SONS / E O JEITO DA SUA MARCA. | bitcrush |
 | 0:12 | SEU PÚBLICO MEXE / E O SOM RESPONDE. | overdrive (a mesma curva do site) |
 | 0:15 | UM AJUSTE NA LENTE / MUDA O CLIMA DA MÚSICA. | filtros (as mesmas fórmulas do site) |
 | 0:19 | 10 FREQUÊNCIAS, / CADA UMA COM SUA / COR E SEU SOM. (contador FREQ 01/10 a 10/10) | um trecho de cada frequência por tempo |

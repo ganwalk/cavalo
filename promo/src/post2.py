@@ -53,8 +53,8 @@ FOV_K = [[0.5, 40], [2.5, 120], [4, 120], [5.5, 20], [7, 20], [7.8, 40]]
 CAPS = [
     (0.25,          T['ignite'],  [(0, 'O SEU SITE PODE SER'), (2.5, 'MAIS QUE SÓ UM [SITE].')]),
     (T['ignite'],   T['speed'],   [(0, 'EXPERIÊNCIAS INTERATIVAS'), (1.5, 'DE IMAGEM E SOM.')]),
-    (T['speed'],    T['struct'],  [(.25, 'ELEVANDO SEU PROJETO'), (2, 'A MAIS QUE SÓ UM LINK')]),
-    (T['struct'],   T['stretch'], [(.25, 'REPRESENTANDO'), (1.25, 'SUA IDENTIDADE'), (2.5, 'ATRAVÉS DA TECNOLOGIA.')]),
+    (T['speed'],    T['struct'],  [(.25, 'SEU PROJETO GANHA'), (2, 'MOVIMENTO E SOM,')]),
+    (T['struct'],   T['stretch'], [(.25, 'COM AS CORES, OS SONS'), (2, 'E O JEITO DA SUA MARCA.')]),
     (T['stretch'],  T['fov'],     [(.25, 'SEU PÚBLICO MEXE'), (2, 'E O SOM RESPONDE.')]),
     (T['fov'],      T['scan'],    [(.25, 'UM AJUSTE NA LENTE'), (2, 'MUDA O CLIMA DA MÚSICA.')]),
     (T['scan'],     T['orbit'],   [(0, '10 FREQUÊNCIAS,'), (1.5, 'CADA UMA COM SUA'), (2.5, 'COR E SEU SOM.')]),
